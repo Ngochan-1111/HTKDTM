@@ -1,0 +1,126 @@
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f6f7fb;
+}
+
+/* Layout */
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: #ffebf0; /* nền hồng nhạt */
+  color: #d63384;       /* chữ hồng đậm */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.sidebar-header h1 {
+  font-size: 20px;
+  margin-bottom: 8px;
+  color: #d63384;
+}
+
+.user-email {
+  font-size: 13px;
+  color: #b3005f;
+  margin-bottom: 8px;
+}
+
+.btn-logout {
+  padding: 6px 12px;
+  background: #ff6b9c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.btn-logout:hover {
+  background: #d63384;
+}
+
+.sidebar-nav {
+  margin-top: 20px;
+}
+
+.sidebar-nav a {
+  display: block;
+  padding: 8px 12px;
+  margin: 6px 0;
+  border-radius: 8px;
+  color: #d63384;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
+.sidebar-nav a.active,
+.sidebar-nav a:hover {
+  background: #d63384;
+  color: white;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  padding: 30px 40px;
+}
+
+.title {
+  margin-bottom: 25px;
+  color: #2f2d52;
+}
+
+/* Card */
+.card {
+  background: white;
+  padding: 25px;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+  margin-bottom: 20px;
+}
+
+/* Form */
+form input,
+form select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+form button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #ff6f91;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+form button:hover {
+  background: #ff4f7b;
+}
