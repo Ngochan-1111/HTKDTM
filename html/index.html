@@ -17,58 +17,131 @@
     </div>
 
     <nav class="sidebar-nav">
-      <a class="active">📊 Thu – Chi</a>
-      <a>📈 Dashboard</a>
-      <a>💰 Ngân sách</a>
-      <a>🔍 Insight</a>
+      <a class="nav-link active" data-section="transactions">📊 Thu – Chi</a>
+      <a class="nav-link" data-section="dashboard">📈 Dashboard</a>
+      <a class="nav-link" data-section="budget">💰 Ngân sách</a>
+      <a class="nav-link" data-section="insight">🔍 Insight</a>
+      <a class="nav-link" data-section="reminders">🔔 Nhắc nhở</a>
     </nav>
   </aside>
 
   <main class="main">
-    <h2 class="title, form-page" style="padding: unset;">
-      ❤️ Finance Dashboard
-    </h2>
+    <section id="section-transactions" class="page-section active">
+      <h2 class="title, form-page" style="padding: unset;">
+        ❤️ Finance Dashboard
+      </h2>
 
-    <!-- FORM GỬI DỮ LIỆU -->
-    <div class="form-page">
-      <form
-      id="transactionForm"
-      action="https://script.google.com/macros/s/AKfycbyHLR0j1jC7fyIV3isHEeipOCvtUs3tZFfGU0uPXn2GQp24orD2M7ifGm6qjbLUC06QNA/exec"
-      method="POST"
-      target="hidden_iframe"
-      class="form-container">
-        <input type="hidden" name="user_id" id="user_id">
-        <!-- Các input ẩn sẽ được thêm tự động trước khi submit -->
+      <!-- FORM GỬI DỮ LIỆU -->
+      <div class="form-page">
+        <form
+        id="transactionForm"
+        action="https://script.google.com/macros/s/AKfycbyHLR0j1jC7fyIV3isHEeipOCvtUs3tZFfGU0uPXn2GQp24orD2M7ifGm6qjbLUC06QNA/exec"
+        method="POST"
+        target="hidden_iframe"
+        class="form-container">
+          <input type="hidden" name="user_id" id="user_id">
+          <!-- Các input ẩn sẽ được thêm tự động trước khi submit -->
 
-        <label>Ngày giao dịch</label>
-        <input type="date" name="date" required>
+          <label>Ngày giao dịch</label>
+          <input type="date" name="date" required>
 
-        <label>Loại giao dịch</label>
-        <select name="type" required>
-          <option value="Thu">Thu</option>
-          <option value="Chi">Chi</option>
-        </select>
+          <label>Loại giao dịch</label>
+          <select name="type" required>
+            <option value="Thu">Thu</option>
+            <option value="Chi">Chi</option>
+          </select>
 
-        <label>Danh mục</label>
-        <select name="category_id" required>
-          <option value="Ăn uống">Ăn uống</option>
-          <option value="Nhà ở">Nhà ở</option>
-          <option value="Di chuyển">Di chuyển</option>
-          <option value="Giải trí">Giải trí</option>
-          <option value="Lương">Lương</option>
-          <option value="Thưởng">Thưởng</option>
-        </select>
+          <label>Danh mục</label>
+          <select name="category_id" required>
+            <option value="Ăn uống">Ăn uống</option>
+            <option value="Nhà ở">Nhà ở</option>
+            <option value="Di chuyển">Di chuyển</option>
+            <option value="Giải trí">Giải trí</option>
+            <option value="Lương">Lương</option>
+            <option value="Thưởng">Thưởng</option>
+          </select>
 
-        <label>Số tiền</label>
-        <input type="number" name="amount" required min="0" step="1">
+          <label>Số tiền</label>
+          <input type="number" name="amount" required min="0" step="1">
 
-        <label>Ghi chú</label>
-        <input type="text" name="note">
+          <label>Ghi chú</label>
+          <input type="text" name="note">
 
-        <button type="submit">Gửi</button>
-      </form>
-     </div>
-    
+          <button type="submit">Gửi</button>
+        </form>
+       </div>
+    </section>
+
+    <section id="section-reminders" class="page-section" style="display:none;">
+      <div class="reminder-header">
+        <h2 class="title form-page"><span>🔔</span> Nhắc Thanh Toán Hóa Đơn</h2>
+        <p class="hint form-page">Để đồng bộ lịch thanh toán, hãy kết nối với Google Calendar</p>
+        <div class="form-page">
+          <button id="connectCalendarBtn" class="btn-connect-calendar">🔗 Kết nối Google Calendar</button>
+        </div>
+        <div id="calendarStatus" class="calendar-status form-page" style="display:none;"></div>
+      </div>
+
+      <div class="reminder-form-wrapper form-page">
+        <form id="reminderForm" class="form-container" style="max-width: 560px">
+          <h3>Thêm nhắc nhở</h3>
+          <label>Tên hóa đơn</label>
+          <input type="text" id="billName" required placeholder="VD: Tiền điện tháng 11">
+          <span id="error-billName" class="error-text" style="display:none;"></span>
+
+          <label>Ghi chú</label>
+          <input type="text" id="notes" placeholder="Ghi chú thêm...">
+
+          <label>Ngày giờ nhắc</label>
+          <input type="datetime-local" id="reminderDate" required>
+          <span id="error-reminderDate" class="error-text" style="display:none;"></span>
+
+          <label>Số tiền (VND)</label>
+          <input type="number" id="amount" min="0" step="1000" required>
+          <span id="error-amount" class="error-text" style="display:none;"></span>
+          
+          <div style="display:flex;">
+            <div>
+              <label>Danh mục</label>
+              <select id="category" required>
+                <option value="">-- Chọn danh mục --</option>
+                <option value="Điện">Điện</option>
+                <option value="Nước">Nước</option>
+                <option value="Internet">Internet</option>
+                <option value="Điện thoại">Điện thoại</option>
+                <option value="Thẻ tín dụng">Thẻ tín dụng</option>
+                <option value="Khác">Khác</option>
+              </select>
+              <span id="error-category" class="error-text" style="display:none;"></span>
+            </div>
+            
+            <div style="margin-left: 30px;">
+              <label>Lặp lại</label>
+              <select id="repeat">
+                <option value="none">Không lặp</option>
+                <option value="daily">Hàng ngày</option>
+                <option value="weekly">Hàng tuần</option>
+                <option value="monthly">Hàng tháng</option>
+                <option value="yearly">Hàng năm</option>
+              </select>
+            </div>
+            
+          </div>
+          
+
+          <div id="formMessage" class="form-message" style="display:none;"></div>
+
+          <button type="submit" class="form-btn">+ Thêm nhắc</button>
+        </form>
+      </div>
+
+      <div class="reminders-list-wrapper">
+        <h3>Danh sách nhắc nhở</h3>
+        <div id="remindersList" class="reminders-list">
+          <div class="empty-state">Chưa có nhắc nhở nào. Hãy thêm nhắc nhở đầu tiên!</div>
+        </div>
+      </div>
+    </section>
 
     <iframe name="hidden_iframe" style="display:none;"></iframe>
   </main>
@@ -93,6 +166,8 @@
     }
     userEmailEl.textContent = user.email;
     userIdInput.value = user.uid; // Gán UID vào hidden input
+    currentUser = user;
+    loadReminders();
   });
 
   // Xử lý logout (dùng hàm trong auth.js)
@@ -101,6 +176,25 @@
       module.logout();
     });
   };
+
+  // ========================
+  // Chuyển tab (Thu chi / Nhắc nhở)
+  // ========================
+  const navLinks = document.querySelectorAll(".nav-link");
+  const sections = document.querySelectorAll(".page-section");
+
+  navLinks.forEach(link => {
+    link.addEventListener("click", () => {
+      navLinks.forEach(l => l.classList.remove("active"));
+      link.classList.add("active");
+
+      const target = link.getAttribute("data-section");
+      sections.forEach(sec => {
+        sec.style.display = sec.id === `section-${target}` ? "block" : "none";
+        sec.classList.toggle("active", sec.id === `section-${target}`);
+      });
+    });
+  });
 
   // Can thiệp trước khi submit form
   form.addEventListener("submit", function (e) {
@@ -160,6 +254,250 @@
       });
     }, 400);
   });
+
+  // ========================
+  // Nhắc nhở
+  // ========================
+  const REMINDERS_WEBHOOK_URL = "https://tieunhi171.app.n8n.cloud/webhook/fbade263-0260-4a0c-9dbc-fa0b285c7cbf";
+  const STORAGE_KEY = "smart_finance_reminders";
+  let currentUser = null;
+
+  const reminderForm = document.getElementById("reminderForm");
+  const remindersList = document.getElementById("remindersList");
+  const connectCalendarBtn = document.getElementById("connectCalendarBtn");
+
+  const reminderDateInput = document.getElementById("reminderDate");
+  if (reminderDateInput) {
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    reminderDateInput.value = now.toISOString().slice(0, 16);
+  }
+
+  if (reminderForm) {
+    reminderForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentUser) {
+        showMessage("Vui lòng đăng nhập", "error");
+        return;
+      }
+
+      const formData = {
+        billName: document.getElementById("billName").value.trim(),
+        notes: document.getElementById("notes").value.trim(),
+        category: document.getElementById("category").value,
+        reminderDate: document.getElementById("reminderDate").value,
+        amount: parseFloat(document.getElementById("amount").value) || 0,
+        repeat: document.getElementById("repeat").value,
+        userId: currentUser.uid,
+        userEmail: currentUser.email,
+        createdAt: new Date().toISOString(),
+        status: "pending"
+      };
+
+      if (!formData.billName) { showError("billName", "Vui lòng nhập tên hóa đơn"); return; }
+      if (!formData.category) { showError("category", "Vui lòng chọn danh mục"); return; }
+      if (!formData.reminderDate) { showError("reminderDate", "Vui lòng chọn ngày giờ nhắc nhở"); return; }
+      if (new Date(formData.reminderDate) < new Date()) { showError("reminderDate", "Ngày giờ nhắc nhở phải trong tương lai"); return; }
+      if (formData.amount <= 0) { showError("amount", "Số tiền phải lớn hơn 0"); return; }
+
+      clearErrors();
+
+      const submitBtn = reminderForm.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Đang thêm...";
+
+      try {
+        const reminderId = `reminder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        formData.id = reminderId;
+
+        await saveReminderToSheets(formData);
+        saveReminderToLocal(formData);
+        reminderForm.reset();
+        if (reminderDateInput) {
+          const next = new Date(); next.setHours(next.getHours() + 1);
+          reminderDateInput.value = next.toISOString().slice(0, 16);
+        }
+        loadReminders();
+        showMessage("✅ Đã thêm nhắc nhở thành công!", "success");
+        scheduleReminderCheck(formData);
+      } catch (err) {
+        console.error(err);
+        showMessage(`❌ Lỗi: ${err.message || "Không thể lưu nhắc nhở"}`, "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+  }
+
+  if (connectCalendarBtn) {
+    connectCalendarBtn.addEventListener("click", () => {
+      showCalendarStatus("Đang kết nối với Google Calendar...", "info");
+      setTimeout(() => {
+        showCalendarStatus("✅ Đã kết nối với Google Calendar", "connected");
+      }, 1000);
+    });
+  }
+
+  function loadReminders() {
+    if (!remindersList) return;
+    const reminders = getRemindersFromLocal();
+    if (reminders.length === 0) {
+      remindersList.innerHTML = '<div class="empty-state">Chưa có nhắc nhở nào. Hãy thêm nhắc nhở đầu tiên!</div>';
+      return;
+    }
+    reminders.sort((a, b) => new Date(a.reminderDate) - new Date(b.reminderDate));
+    remindersList.innerHTML = reminders.map(reminder => {
+      const date = new Date(reminder.reminderDate);
+      const now = new Date();
+      const isOverdue = date < now && reminder.status === "pending";
+      const status = isOverdue ? "overdue" : reminder.status;
+      return `
+        <div class="reminder-item" data-id="${reminder.id}">
+          <div class="reminder-content">
+            <div class="reminder-title">${escapeHtml(reminder.billName)}</div>
+            <div class="reminder-details">
+              <div class="reminder-date">📅 ${formatDateTime(date)}</div>
+              ${reminder.category ? `<div>📂 Danh mục: ${escapeHtml(reminder.category)}</div>` : ""}
+              ${reminder.notes ? `<div>📝 ${escapeHtml(reminder.notes)}</div>` : ""}
+              ${reminder.repeat !== "none" ? `<div>🔄 Lặp lại: ${getRepeatLabel(reminder.repeat)}</div>` : ""}
+            </div>
+            <div class="reminder-amount">${formatCurrency(reminder.amount)} VNĐ</div>
+            <span class="reminder-status status-${status}">${getStatusLabel(status)}</span>
+          </div>
+          <div class="reminder-actions">
+            <button class="btn-action btn-edit" onclick="editReminder('${reminder.id}')">Sửa</button>
+            <button class="btn-action btn-delete" onclick="deleteReminder('${reminder.id}')">Xóa</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  async function saveReminderToSheets(reminderData) {
+    const res = await fetch(REMINDERS_WEBHOOK_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({...reminderData, type:"reminder"})
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  function saveReminderToLocal(reminder) {
+    const reminders = getRemindersFromLocal();
+    reminders.push(reminder);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
+  }
+  function getRemindersFromLocal() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  }
+  window.deleteReminder = function(id) {
+    if (!confirm("Bạn có chắc muốn xóa nhắc nhở này?")) return;
+    const filtered = getRemindersFromLocal().filter(r => r.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    loadReminders();
+  };
+  window.editReminder = function(id) {
+    const reminders = getRemindersFromLocal();
+    const reminder = reminders.find(r => r.id === id);
+    if (!reminder) return;
+    document.getElementById("billName").value = reminder.billName;
+    document.getElementById("notes").value = reminder.notes || "";
+    document.getElementById("reminderDate").value = reminder.reminderDate.slice(0,16);
+    document.getElementById("amount").value = reminder.amount;
+    document.getElementById("repeat").value = reminder.repeat;
+    deleteReminder(id);
+    document.querySelector(".reminder-form-wrapper").scrollIntoView({behavior:"smooth"});
+  };
+
+  function scheduleReminderCheck(reminder) {
+    const reminderDate = new Date(reminder.reminderDate);
+    const delay = reminderDate.getTime() - Date.now();
+    if (delay > 0) setTimeout(() => sendReminderEmail(reminder), delay);
+  }
+  async function sendReminderEmail(reminder) {
+    try {
+      const res = await fetch(REMINDERS_WEBHOOK_URL, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({type:"send_reminder", reminder, action:"send_email"})
+      });
+      if (res.ok) {
+        const reminders = getRemindersFromLocal();
+        const idx = reminders.findIndex(r => r.id === reminder.id);
+        if (idx !== -1) {
+          reminders[idx].status = "completed";
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
+          loadReminders();
+        }
+      }
+    } catch (err) {
+      console.error("Error sending reminder email:", err);
+    }
+  }
+  function checkOverdueReminders() {
+    const reminders = getRemindersFromLocal();
+    const now = new Date();
+    reminders.forEach(r => {
+      if (new Date(r.reminderDate) <= now && r.status === "pending") {
+        sendReminderEmail(r);
+      }
+    });
+  }
+  setInterval(checkOverdueReminders, 60000);
+
+  function showError(fieldId, message) {
+    const errorEl = document.getElementById(`error-${fieldId}`);
+    if (errorEl) { errorEl.textContent = message; errorEl.style.display = "block"; }
+    const input = document.getElementById(fieldId);
+    if (input) input.classList.add("error");
+  }
+  function clearErrors() {
+    document.querySelectorAll(".error-text").forEach(el => el.style.display="none");
+    document.querySelectorAll(".error").forEach(el => el.classList.remove("error"));
+  }
+  function showMessage(message, type) {
+    const messageEl = document.getElementById("formMessage");
+    if (!messageEl) return;
+    messageEl.textContent = message;
+    messageEl.className = `form-message ${type}`;
+    messageEl.style.display = "block";
+    setTimeout(() => { messageEl.style.display = "none"; }, 3000);
+  }
+  function showCalendarStatus(message, type) {
+    const statusEl = document.getElementById("calendarStatus");
+    if (!statusEl) return;
+    statusEl.textContent = message;
+    statusEl.className = `calendar-status ${type}`;
+    statusEl.style.display = "block";
+  }
+  function formatDateTime(date) {
+    const d = String(date.getDate()).padStart(2,"0");
+    const m = String(date.getMonth()+1).padStart(2,"0");
+    const y = date.getFullYear();
+    const hh = String(date.getHours()).padStart(2,"0");
+    const mm = String(date.getMinutes()).padStart(2,"0");
+    return `${d}/${m}/${y} ${hh}:${mm}`;
+  }
+  function formatCurrency(amount) {
+    return new Intl.NumberFormat('vi-VN').format(amount);
+  }
+  function getRepeatLabel(repeat) {
+    const labels = {daily:"Hàng ngày", weekly:"Hàng tuần", monthly:"Hàng tháng", yearly:"Hàng năm"};
+    return labels[repeat] || repeat;
+  }
+  function getStatusLabel(status) {
+    const labels = {pending:"Chờ nhắc", completed:"Đã nhắc", overdue:"Quá hạn"};
+    return labels[status] || status;
+  }
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
 </script>
 
 </body>

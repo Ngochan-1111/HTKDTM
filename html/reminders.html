@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nhắc nhở | Smart Finance</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/reminders.css">
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <header class="header">
+    <h1 class="header-title">Smart Finance</h1>
+    <div class="user-info">
+      <span class="user-icon">👤</span>
+      <span id="userEmail" class="user-name">Tài khoản</span>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-item">
+        <span class="nav-icon">🏠</span>
+        <span>Tổng Quan</span>
+      </a>
+      <a href="index.html" class="nav-item">
+        <span class="nav-icon">🍃</span>
+        <span>Thu chi</span>
+      </a>
+      <a href="index.html" class="nav-item">
+        <span class="nav-icon">💰</span>
+        <span>Số giao dịch</span>
+      </a>
+      <a href="reminders.html" class="nav-item active">
+        <span class="nav-icon">🔔</span>
+        <span>Nhắc nhở</span>
+      </a>
+      <a href="index.html" class="nav-item">
+        <span class="nav-icon">📊</span>
+        <span>Ngân sách</span>
+      </a>
+      <a href="index.html" class="nav-item">
+        <span class="nav-icon">⚙️</span>
+        <span>Cài đặt</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="content-header">
+      <h2 class="page-title">
+        <span class="title-icon">🔔</span>
+        Nhắc Thanh Toán Hóa Đơn
+      </h2>
+    </div>
+
+    <!-- Google Calendar Integration -->
+    <div class="calendar-section">
+      <p class="calendar-text">
+        Để đồng bộ lịch thanh toán, hãy kết nối với Google Calendar:
+      </p>
+      <button id="connectCalendarBtn" class="btn-connect-calendar">
+        <span class="btn-icon">🔗</span>
+        Kết nối Google Calendar
+      </button>
+      <div id="calendarStatus" class="calendar-status" style="display: none;"></div>
+    </div>
+
+    <!-- Reminder Form -->
+    <div class="reminder-form-container">
+      <form id="reminderForm" class="reminder-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="billName">Tên hóa đơn</label>
+            <input 
+              type="text" 
+              id="billName" 
+              name="billName" 
+              placeholder="VD: Tiền điện tháng 11"
+              required
+            />
+            <span id="error-billName" class="error-text" style="display: none;"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="notes">Ghi chú...</label>
+            <input 
+              type="text" 
+              id="notes" 
+              name="notes" 
+              placeholder="Ghi chú thêm về hóa đơn..."
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="reminderDate">Ngày giờ nhắc nhở</label>
+            <div class="date-time-input">
+              <input 
+                type="datetime-local" 
+                id="reminderDate" 
+                name="reminderDate"
+                required
+              />
+            </div>
+            <span id="error-reminderDate" class="error-text" style="display: none;"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group amount-group">
+            <label for="amount">Số tiền (VND)</label>
+            <div class="amount-input-wrapper">
+              <input 
+                type="number" 
+                id="amount" 
+                name="amount" 
+                placeholder="0"
+                min="0"
+                step="1000"
+                required
+              />
+            </div>
+            <span id="error-amount" class="error-text" style="display: none;"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="repeat">Lập lại</label>
+            <select id="repeat" name="repeat">
+              <option value="none">Không lập</option>
+              <option value="daily">Hàng ngày</option>
+              <option value="weekly">Hàng tuần</option>
+              <option value="monthly">Hàng tháng</option>
+              <option value="yearly">Hàng năm</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="formMessage" class="form-message" style="display: none;"></div>
+
+        <button type="submit" class="btn-add-reminder">
+          <span class="btn-icon">+</span>
+          Thêm Nhắc
+        </button>
+      </form>
+    </div>
+
+    <!-- Reminders List -->
+    <div class="reminders-section">
+      <h3 class="section-title">Danh sách nhắc nhở</h3>
+      <div id="remindersList" class="reminders-list">
+        <!-- Reminders will be loaded here -->
+        <div class="empty-state">
+          <p>Chưa có nhắc nhở nào. Hãy thêm nhắc nhở đầu tiên!</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Floating Action Button (Chatbot) -->
+<div class="fab">
+  <button class="fab-btn">🤖</button>
+</div>
+
+<!-- Load Firebase -->
+<script type="module">
+  import { auth } from "../js/firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  // Kiểm tra trạng thái đăng nhập
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+    const emailEl = document.getElementById("userEmail");
+    if (emailEl) {
+      emailEl.textContent = user.email || user.displayName || "Tài khoản";
+    }
+  });
+</script>
+
+<!-- Load Reminders Script -->
+<script type="module" src="../js/reminders.js"></script>
+
+</body>
+</html>
