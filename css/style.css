@@ -104,7 +104,8 @@ form input,
 form select {
   width: 100%;
   padding: 12px;
-  margin-bottom: 15px;
+  margin-top: 8px;
+  margin-bottom: 23px;
   border-radius: 8px;
   border: 1px solid #ddd;
   font-size: 14px;
@@ -123,4 +124,21 @@ form button {
 
 form button:hover {
   background: #ff4f7b;
+}
+
+.form-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 420px;
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 36px 32px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
 }

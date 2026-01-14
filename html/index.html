@@ -25,45 +25,50 @@
   </aside>
 
   <main class="main">
-    <h2 class="title">❤️ Finance Dashboard</h2>
+    <h2 class="title, form-page" style="padding: unset;">
+      ❤️ Finance Dashboard
+    </h2>
 
     <!-- FORM GỬI DỮ LIỆU -->
-    <form
+    <div class="form-page">
+      <form
       id="transactionForm"
       action="https://script.google.com/macros/s/AKfycbyHLR0j1jC7fyIV3isHEeipOCvtUs3tZFfGU0uPXn2GQp24orD2M7ifGm6qjbLUC06QNA/exec"
       method="POST"
       target="hidden_iframe"
-    >
-      <input type="hidden" name="user_id" id="user_id">
-      <!-- Các input ẩn sẽ được thêm tự động trước khi submit -->
+      class="form-container">
+        <input type="hidden" name="user_id" id="user_id">
+        <!-- Các input ẩn sẽ được thêm tự động trước khi submit -->
 
-      <label>Ngày giao dịch</label>
-      <input type="date" name="date" required>
+        <label>Ngày giao dịch</label>
+        <input type="date" name="date" required>
 
-      <label>Loại giao dịch</label>
-      <select name="type" required>
-        <option value="Thu">Thu</option>
-        <option value="Chi">Chi</option>
-      </select>
+        <label>Loại giao dịch</label>
+        <select name="type" required>
+          <option value="Thu">Thu</option>
+          <option value="Chi">Chi</option>
+        </select>
 
-      <label>Danh mục</label>
-      <select name="category_id" required>
-        <option value="Ăn uống">Ăn uống</option>
-        <option value="Nhà ở">Nhà ở</option>
-        <option value="Di chuyển">Di chuyển</option>
-        <option value="Giải trí">Giải trí</option>
-        <option value="Lương">Lương</option>
-        <option value="Thưởng">Thưởng</option>
-      </select>
+        <label>Danh mục</label>
+        <select name="category_id" required>
+          <option value="Ăn uống">Ăn uống</option>
+          <option value="Nhà ở">Nhà ở</option>
+          <option value="Di chuyển">Di chuyển</option>
+          <option value="Giải trí">Giải trí</option>
+          <option value="Lương">Lương</option>
+          <option value="Thưởng">Thưởng</option>
+        </select>
 
-      <label>Số tiền</label>
-      <input type="number" name="amount" required min="0" step="1">
+        <label>Số tiền</label>
+        <input type="number" name="amount" required min="0" step="1">
 
-      <label>Ghi chú</label>
-      <input type="text" name="note">
+        <label>Ghi chú</label>
+        <input type="text" name="note">
 
-      <button type="submit">Gửi</button>
-    </form>
+        <button type="submit">Gửi</button>
+      </form>
+     </div>
+    
 
     <iframe name="hidden_iframe" style="display:none;"></iframe>
   </main>
