@@ -261,6 +261,7 @@
   const REMINDERS_WEBHOOK_URL = "https://tieunhi171.app.n8n.cloud/webhook/fbade263-0260-4a0c-9dbc-fa0b285c7cbf";
   const STORAGE_KEY = "smart_finance_reminders";
   let currentUser = null;
+  let editingReminderId = null; // Lưu ID nhắc nhở đang được sửa
 
   const reminderForm = document.getElementById("reminderForm");
   const remindersList = document.getElementById("remindersList");
@@ -308,11 +309,24 @@
       submitBtn.textContent = "Đang thêm...";
 
       try {
-        const reminderId = `reminder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        formData.id = reminderId;
+        // Giữ nguyên ID cũ nếu đang sửa, nếu không thì tạo ID mới
+        if (editingReminderId) {
+          formData.id = editingReminderId;
+        } else {
+          const reminderId = `reminder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          formData.id = reminderId;
+        }
+
+        // Thêm action để n8n phân biệt tạo mới / cập nhật
+        formData.action = editingReminderId ? "update" : "create";
 
         await saveReminderToSheets(formData);
-        saveReminderToLocal(formData);
+
+        if (editingReminderId) {
+          updateReminderInLocal(formData);
+        } else {
+          saveReminderToLocal(formData);
+        }
         reminderForm.reset();
         if (reminderDateInput) {
           const next = new Date(); next.setHours(next.getHours() + 1);
@@ -321,6 +335,10 @@
         loadReminders();
         showMessage("✅ Đã thêm nhắc nhở thành công!", "success");
         scheduleReminderCheck(formData);
+
+        // Reset trạng thái sửa
+        editingReminderId = null;
+        if (submitBtn) submitBtn.textContent = "+ Thêm nhắc";
       } catch (err) {
         console.error(err);
         showMessage(`❌ Lỗi: ${err.message || "Không thể lưu nhắc nhở"}`, "error");
@@ -390,26 +408,75 @@
     reminders.push(reminder);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
   }
+
+  // Cập nhật reminder trong localStorage khi sửa
+  function updateReminderInLocal(updatedReminder) {
+    const reminders = getRemindersFromLocal();
+    const index = reminders.findIndex(r => r.id === updatedReminder.id);
+    if (index !== -1) {
+      reminders[index] = updatedReminder;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
+    } else {
+      // Nếu không tìm thấy thì thêm mới (fallback)
+      reminders.push(updatedReminder);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
+    }
+  }
   function getRemindersFromLocal() {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
   }
-  window.deleteReminder = function(id) {
+  // Xóa reminder: gửi action "delete" lên n8n rồi mới xóa local
+  window.deleteReminder = async function(id) {
     if (!confirm("Bạn có chắc muốn xóa nhắc nhở này?")) return;
-    const filtered = getRemindersFromLocal().filter(r => r.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    loadReminders();
+
+    try {
+      // Gửi lệnh xóa về n8n
+      await fetch(REMINDERS_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: id,
+          action: "delete",
+          type: "reminder"
+        })
+      });
+
+      // Sau khi n8n nhận lệnh, xóa trong localStorage và reload UI
+      const filtered = getRemindersFromLocal().filter(r => r.id !== id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      loadReminders();
+      showMessage("🗑️ Đã xóa nhắc nhở!", "success");
+    } catch (err) {
+      console.error("Lỗi xóa nhắc nhở:", err);
+      showMessage("❌ Lỗi xóa: " + (err.message || "Không thể xóa nhắc nhở"), "error");
+    }
   };
   window.editReminder = function(id) {
     const reminders = getRemindersFromLocal();
     const reminder = reminders.find(r => r.id === id);
     if (!reminder) return;
+
+    // Đánh dấu đang sửa
+    editingReminderId = id;
+
+    // Điền dữ liệu vào form
     document.getElementById("billName").value = reminder.billName;
     document.getElementById("notes").value = reminder.notes || "";
     document.getElementById("reminderDate").value = reminder.reminderDate.slice(0,16);
     document.getElementById("amount").value = reminder.amount;
     document.getElementById("repeat").value = reminder.repeat;
-    deleteReminder(id);
+    document.getElementById("category").value = reminder.category || "";
+
+    // Xóa bản cũ khỏi local để tránh hiển thị trùng, KHÔNG hỏi confirm, KHÔNG gửi delete lên n8n
+    const filtered = reminders.filter(r => r.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    loadReminders();
+
+    // Đổi text nút submit để người dùng biết đang ở chế độ sửa
+    const submitBtn = reminderForm.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.textContent = "Cập nhật nhắc nhở";
+
     document.querySelector(".reminder-form-wrapper").scrollIntoView({behavior:"smooth"});
   };
 

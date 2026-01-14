@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const connectCalendarBtn = document.getElementById("connectCalendarBtn");
   
   let currentUser = null;
+  let editingReminderId = null; // Lưu ID nhắc nhở đang được sửa
 
   // Lấy user hiện tại
   onAuthStateChanged(auth, (user) => {
@@ -89,15 +90,23 @@ document.addEventListener("DOMContentLoaded", function() {
       submitBtn.textContent = "Đang thêm...";
 
       try {
-        // Tạo ID cho reminder
-        const reminderId = `reminder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        formData.id = reminderId;
+        // Nếu đang sửa thì giữ nguyên ID cũ, nếu không thì tạo ID mới
+        if (editingReminderId) {
+          formData.id = editingReminderId;
+        } else {
+          const reminderId = `reminder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          formData.id = reminderId;
+        }
 
         // Gửi đến n8n webhook để lưu vào Google Sheets
         await saveReminderToSheets(formData);
 
         // Lưu vào localStorage (backup)
-        saveReminderToLocal(formData);
+        if (editingReminderId) {
+          updateReminderInLocal(formData);
+        } else {
+          saveReminderToLocal(formData);
+        }
 
         // Reset form
         reminderForm.reset();
@@ -109,6 +118,9 @@ document.addEventListener("DOMContentLoaded", function() {
         loadReminders();
 
         showMessage("✅ Đã thêm nhắc nhở thành công!", "success");
+
+        // Reset trạng thái sửa (nếu có)
+        editingReminderId = null;
 
         // Lên lịch kiểm tra nhắc nhở
         scheduleReminderCheck(formData);
@@ -218,22 +230,51 @@ document.addEventListener("DOMContentLoaded", function() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
   }
 
+  // Cập nhật reminder trong localStorage (dùng cho chức năng Sửa)
+  function updateReminderInLocal(updatedReminder) {
+    const reminders = getRemindersFromLocal();
+    const index = reminders.findIndex(r => r.id === updatedReminder.id);
+    if (index !== -1) {
+      reminders[index] = updatedReminder;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
+    } else {
+      // Nếu vì lý do gì đó không tìm thấy, fallback sang thêm mới
+      reminders.push(updatedReminder);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
+    }
+  }
+
   // Lấy reminders từ localStorage
   function getRemindersFromLocal() {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
   }
 
-  // Xóa reminder
-  window.deleteReminder = function(id) {
-    if (!confirm("Bạn có chắc muốn xóa nhắc nhở này?")) {
-      return;
-    }
+  // Xóa reminder (gửi lệnh delete về n8n trước rồi mới xóa local)
+  window.deleteReminder = async function(id) {
+    if (!confirm("Bạn có chắc muốn xóa nhắc nhở này?")) return;
+    
+    try {
+      // Gửi lệnh xóa về n8n
+      await fetch(REMINDERS_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: id,
+          action: "delete", // Tín hiệu cho n8n biết là xóa
+          type: "reminder"
+        })
+      });
 
-    const reminders = getRemindersFromLocal();
-    const filtered = reminders.filter(r => r.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    loadReminders();
+      // Xóa trong localStorage sau khi n8n nhận lệnh
+      const filtered = getRemindersFromLocal().filter(r => r.id !== id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      loadReminders();
+      showMessage("🗑️ Đã xóa nhắc nhở!", "success");
+    } catch (err) {
+      console.error("Lỗi xóa nhắc nhở:", err);
+      showMessage("❌ Lỗi xóa: " + (err.message || "Không thể xóa nhắc nhở"), "error");
+    }
   };
 
   // Sửa reminder
@@ -243,6 +284,9 @@ document.addEventListener("DOMContentLoaded", function() {
     
     if (!reminder) return;
 
+    // Đánh dấu đang sửa nhắc nhở này
+    editingReminderId = id;
+
     // Điền vào form
     document.getElementById("billName").value = reminder.billName;
     document.getElementById("notes").value = reminder.notes || "";
@@ -250,8 +294,16 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("amount").value = reminder.amount;
     document.getElementById("repeat").value = reminder.repeat;
 
-    // Xóa reminder cũ
-    deleteReminder(id);
+    // Xóa reminder cũ khỏi local để UI không hiển thị trùng
+    const filtered = reminders.filter(r => r.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    loadReminders();
+
+    // Đổi text nút submit cho rõ ràng (nếu muốn)
+    const submitBtn = document.querySelector('#reminderForm button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.textContent = "Cập nhật nhắc nhở";
+    }
 
     // Scroll lên form
     document.querySelector(".reminder-form-container").scrollIntoView({ behavior: "smooth" });
