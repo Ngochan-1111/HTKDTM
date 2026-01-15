@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Ngân sách | Finance BI</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/budget.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>💼 Finance BI</h1>
+      <p class="user-email">👤 <span id="userEmail">Tài khoản</span></p>
+      <button class="btn-logout" onclick="logout()">Đăng xuất</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="index.html">📊 Thu – Chi</a>
+      <a>📈 Dashboard</a>
+      <a class="active">💰 Ngân sách</a>
+      <a>🔍 Insight</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <h2 class="title">📊 Lập kế hoạch ngân sách</h2>
+
+    <button class="add-budget-btn" onclick="openModal()">➕ Thêm ngân sách</button>
+
+    <div id="budgetList" class="budget-list"></div>
+
+    <!-- MODAL -->
+    <div id="budgetModal" class="modal hidden">
+      <div class="modal-content">
+        <h3>➕ Thêm ngân sách</h3>
+
+        <label>Tháng</label>
+        <select id="budgetMonth"></select>
+
+        <label>Năm</label>
+        <select id="budgetYear"></select>
+
+        <label>Danh mục</label>
+        <select id="categorySelect">
+          <option value="Ăn uống">Ăn uống</option>
+          <option value="Nhà ở">Nhà ở</option>
+          <option value="Di chuyển">Di chuyển</option>
+          <option value="Mua sắm">Mua sắm</option>
+          <option value="Giải trí">Giải trí</option>
+        </select>
+
+        <label>Hạn mức (VND)</label>
+        <input type="number" id="budgetLimit">
+
+        <div class="modal-actions">
+          <button type="button" onclick="saveBudget()">Lưu</button>
+          <button type="button" class="cancel" onclick="closeModal()">Hủy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM POST GIỐNG THU–CHI -->
+    <form
+    id="budgetForm"
+    action="https://script.google.com/macros/s/AKfycbx4OM__SN-pnUFUFhRHmzHFUFKSwXwsEx6KR1PpRKcUG9vo4OfvxyMmjybEgfuH1h4eKA/exec"
+    method="POST"
+    target="hidden_iframe"
+    >
+    <input type="hidden" id="f_user" name="user">
+    <input type="hidden" id="f_month" name="month">
+    <input type="hidden" id="f_year" name="year">
+    <input type="hidden" id="f_category" name="category">
+    <input type="hidden" id="f_limit" name="limit">
+    </form>
+
+<iframe name="hidden_iframe" style="display:none;"></iframe>
+
+
+  </main>
+</div>
+
+<script type="module">
+  import { auth } from "../js/firebase.js";
+  import { onAuthStateChanged } from
+    "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  const userEmailEl = document.getElementById("userEmail");
+  const BUDGET_LIST_API = "https://tieunhi171.app.n8n.cloud/webhook/budget/list";
+  const BUDGET_DELETE_API = "https://tieunhi171.app.n8n.cloud/webhook/budget/delete";
+
+
+
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      window.location.href = "../login.html";
+      return;
+    }
+    userEmailEl.textContent = user.email;
+    initMonthYear();
+    loadBudgets();
+  });
+
+  window.logout = () => {
+    import("../js/auth.js").then(m => m.logout());
+  };
+
+  window.openModal = () =>
+    document.getElementById("budgetModal").classList.remove("hidden");
+
+  window.closeModal = () =>
+    document.getElementById("budgetModal").classList.add("hidden");
+
+  function initMonthYear() {
+    const m = document.getElementById("budgetMonth");
+    const y = document.getElementById("budgetYear");
+    m.innerHTML = ""; y.innerHTML = "";
+
+    for (let i = 1; i <= 12; i++) {
+      m.innerHTML += `<option value="${i}">Tháng ${i}</option>`;
+    }
+
+    const now = new Date().getFullYear();
+    for (let i = now - 2; i <= now + 5; i++) {
+      y.innerHTML += `<option value="${i}">${i}</option>`;
+    }
+
+    m.value = new Date().getMonth() + 1;
+    y.value = now;
+  }
+
+  window.saveBudget = async () => {
+  const payload = {
+    user: auth.currentUser.email,
+    month: Number(document.getElementById("budgetMonth").value),
+    year: Number(document.getElementById("budgetYear").value),
+    category: document.getElementById("categorySelect").value,
+    limit: Number(document.getElementById("budgetLimit").value)
+  };
+
+  if (!payload.limit) {
+    alert("❌ Chưa nhập hạn mức");
+    return;
+  }
+
+  try {
+    await fetch("https://tieunhi171.app.n8n.cloud/webhook/budget/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    alert("✅ Lưu ngân sách thành công");
+
+    closeModal();
+    loadBudgets(); // reload card
+    document.getElementById("budgetLimit").value = "";
+
+  } catch (err) {
+    console.error(err);
+    alert("❌ Lỗi khi lưu ngân sách");
+  }
+};
+
+
+
+  function addBudgetCard(b) {
+  const spent = Number(b.spent || 0);
+  const limit = Number(b.limit);
+  const percent = Math.min(100, Math.round(spent / limit * 100));
+  const over = spent > limit;
+
+  document.getElementById("budgetList").innerHTML += `
+    <div class="budget-card ${over ? "over" : ""}">
+      <h3>${b.month}/${b.year} - ${b.category}</h3>
+
+      ${over ? `<div class="alert">⚠️ Vượt ngân sách!</div>` : ""}
+
+      <p>Hạn mức: ${limit.toLocaleString()} VND</p>
+      <p>Đã tiêu: ${spent.toLocaleString()} VND</p>
+      <p>Còn lại: ${(limit - spent).toLocaleString()} VND</p>
+
+      <div class="progress">
+        <div class="bar" style="width:${percent}%"></div>
+      </div>
+
+      <button class="delete" onclick="deleteBudget(${b.rowNumber}, this)">❌ Xóa</button>
+    </div>
+  `;
+}
+
+
+
+  async function loadBudgets() {
+  const email = auth.currentUser.email;
+  const res = await fetch(`${BUDGET_LIST_API}?user=${email}`);
+
+  const data = await res.json();
+
+  const list = document.getElementById("budgetList");
+  list.innerHTML = "";
+
+  data.forEach(b => addBudgetCard(b));
+}
+
+
+  window.deleteBudget = async (rowNumber, btn) => {
+  if (!confirm("Xóa ngân sách này?")) return;
+
+  try {
+    await fetch("https://tieunhi171.app.n8n.cloud/webhook/budget/delete", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ rowNumber })
+    });
+
+    btn.closest(".budget-card").remove();
+    alert("✅ Đã xóa ngân sách");
+
+  } catch (e) {
+    console.error(e);
+    alert("❌ Xóa thất bại");
+  }
+};
+
+
+
+</script>
+
+</body>
+</html>

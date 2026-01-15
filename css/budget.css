@@ -1,0 +1,225 @@
+/* =======================
+   BUDGET PAGE ONLY
+   ======================= */
+
+/* ===== TITLE ===== */
+.title {
+  margin-bottom: 20px;
+  color: #2f2d52;
+}
+
+/* ===== BUTTON OPEN MODAL ===== */
+.add-budget-btn {
+  background: #ff6b9c;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.add-budget-btn:hover {
+  background: #e64980;
+}
+
+/* =======================
+   MODAL
+   ======================= */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: white;
+  width: 360px;
+  padding: 22px;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.modal-content label {
+  font-size: 13px;
+  color: #555;
+  margin-top: 12px;
+  display: block;
+}
+
+.modal-content input,
+.modal-content select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 4px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.modal-content input:focus,
+.modal-content select:focus {
+  outline: none;
+  border-color: #ff6b9c;
+}
+
+/* ===== MODAL ACTIONS ===== */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+}
+
+.modal-actions button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-actions button:first-child {
+  background: #ff6b9c;
+  color: white;
+}
+
+.modal-actions button:first-child:hover {
+  background: #e64980;
+}
+
+.modal-actions .cancel {
+  background: #eee;
+  color: #555;
+}
+
+.modal-actions .cancel:hover {
+  background: #ddd;
+}
+
+/* =======================
+   BUDGET CARD
+   ======================= */
+.budget-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px 20px 22px;
+  margin-bottom: 18px;
+  border: 1.5px solid #e6e6e6;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.budget-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== OVER BUDGET ===== */
+.budget-card.over {
+  border-color: #e74c3c;
+  background: #fff7f7;
+}
+
+/* ===== TITLE INSIDE CARD ===== */
+.budget-card h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  color: #2f2d52;
+}
+
+.budget-card p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+/* ===== ALERT TEXT ===== */
+.budget-card .alert {
+  color: #e74c3c;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+/* =======================
+   PROGRESS BAR
+   ======================= */
+.progress {
+  margin-top: 10px;
+  height: 8px;
+  background: #eee;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress .bar {
+  height: 100%;
+  background: linear-gradient(90deg, #2ecc71, #27ae60);
+  transition: width 0.3s ease;
+}
+
+.budget-card.over .bar {
+  background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+/* =======================
+   DELETE BUTTON (TOP RIGHT)
+   ======================= */
+.budget-card .delete {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  background: #f4dada;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+
+  width: 28px;
+  height: 28px;
+
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 28px;
+  text-align: center;
+
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.budget-card .delete:hover {
+  background: #f61e1e;
+  transform: scale(1.05);
+}
+
+
+/* =======================
+   LAYOUT FIX
+   ======================= */
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  position: fixed;
+  inset: 0 auto 0 0;
+}
+
+.main {
+  margin-left: 240px;
+  padding: 24px;
+  height: 100vh;
+  overflow-y: auto;
+}
