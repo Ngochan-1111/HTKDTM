@@ -1,76 +1,106 @@
+/* ===== RESET NHẸ ===== */
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
 }
 
 body {
-  background: linear-gradient(135deg, #ffe6f0, #fff5f8);
-  color: #333;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #1E3A8A, #2563EB);
+  color: #0F172A;
+  min-height: 100vh;
 }
 
-.container {
-  width: 100%;
-  max-width: 600px;
-  padding: 30px;
-  background: #fff0f6;
-  border-radius: 20px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+/* ===== LAYOUT CHÍNH ===== */
+.landing-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 
-.logo {
-  font-size: 28px;
-  font-weight: bold;
-  color: #d63384;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
+/* ===== HEADER ===== */
+.landing-header h1 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 8px;
 }
 
-.subtitle {
-  margin-top: 10px;
+.landing-header p {
+  color: #E0E7FF;
   font-size: 16px;
-  color: #555;
 }
 
-.auth-links {
-  margin: 25px 0;
+/* ===== MAIN ===== */
+.landing-main {
+  margin-top: 50px;
+  width: 100%;
+}
+
+.intro-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.intro-card h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.intro-card p {
+  color: #475569;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+/* ===== BUTTON ===== */
+.action-buttons {
+  margin-top: 40px;
   display: flex;
   justify-content: center;
-  gap: 30px;
+  gap: 20px;
 }
 
-.auth-links a {
-  text-decoration: none;
-  color: #ff6b9c;
+.btn {
+  padding: 12px 28px;
+  border-radius: 999px;
   font-weight: 600;
-  transition: color 0.3s ease;
+  text-decoration: none;
+  transition: 0.25s ease;
 }
 
-.auth-links a:hover {
-  color: #d63384;
+.btn.primary {
+  background: #2563EB;
+  color: #FFFFFF;
 }
 
-.main-content h2 {
-  font-size: 20px;
-  margin-bottom: 10px;
-  color: #d63384;
+.btn.primary:hover {
+  background: #1D4ED8;
+  transform: translateY(-2px);
 }
 
-.main-content p {
-  font-size: 15px;
-  color: #666;
+.btn.outline {
+  border: 2px solid #2563EB;
+  color: #2563EB;
+  background: transparent;
 }
 
-.footer {
-  margin-top: 30px;
-  font-size: 13px;
-  color: #999;
+.btn.outline:hover {
+  background: #2563EB;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+}
+
+/* ===== FOOTER ===== */
+.landing-footer {
+  margin-top: 60px;
+  color: #E0E7FF;
+  font-size: 14px;
 }

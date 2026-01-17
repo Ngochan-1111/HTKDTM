@@ -2,12 +2,13 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Finance BI - Home - Nhập Thu Chi</title>
+  <title>Finance BI - Home</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 
 <div class="container">
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-header">
       <h1>💼 Finance BI</h1>
@@ -16,56 +17,53 @@
     </div>
 
     <nav class="sidebar-nav">
+      <a href="index.html" class="nav-link active">🏠 Trang chủ</a>
       <a href="transactions.html" class="nav-link">📊 Thu – Chi</a>
-      <a href="dashboard.html" class="nav-link" href="dashboard.html">📈 Dashboard</a>
-      <a href="budget.html" class="nav-link" href="#" href="budget.html">💰 Ngân sách</a>
-      <a href="insight.html" class="nav-link" href="#" href="insight.html">🔍 Insight</a>
+      <a href="dashboard.html" class="nav-link">📈 Dashboard</a>
+      <a href="budget.html" class="nav-link">💰 Ngân sách</a>
+      <a href="insight.html" class="nav-link">🔍 Insight</a>
       <a href="reminders.html" class="nav-link">🔔 Nhắc nhở</a>
     </nav>
   </aside>
 
-  <main class="main">
-    <h2 class="title">❤️ Nhập Giao Dịch</h2>
+  <!-- MAIN -->
+  <main class="main home">
+    <!-- HERO -->
+    <section class="home-hero">
+      <div class="hero-text">
+        <h2>Quản lý tài chính cá nhân <br>đơn giản & thông minh 💡</h2>
+        <p class="hero-desc">
+          Finance BI giúp bạn theo dõi dòng tiền, hiểu rõ thói quen chi tiêu
+          và đưa ra quyết định tốt hơn mỗi ngày.
+        </p>
 
-    <!-- FORM GỬI DỮ LIỆU -->
-    <form
-      id="transactionForm"
-      action="https://script.google.com/macros/s/AKfycbyHLR0j1jC7fyIV3isHEeipOCvtUs3tZFfGU0uPXn2GQp24orD2M7ifGm6qjbLUC06QNA/exec"
-      method="POST"
-      target="hidden_iframe"
-    >
-      <input type="hidden" name="user_id" id="user_id">
+        <div class="hero-actions">
+          <a href="transactions.html" class="btn-primary">➕ Nhập giao dịch</a>
+          <a href="dashboard.html" class="btn-secondary">📊 Xem tổng quan</a>
+        </div>
+      </div>
+    </section>
 
-      <label>Ngày giao dịch</label>
-      <input type="date" name="date" required>
+    <!-- QUICK FEATURES -->
+    <section class="home-cards">
+      <div class="home-card">
+        <h3>📊 Ghi chép Thu – Chi</h3>
+        <p>Ghi lại mọi khoản chi tiêu hằng ngày như mua cà phê, ăn trưa hay lương tháng.</p>
+        <a href="transactions.html">Đi tới →</a>
+      </div>
 
-      <label>Loại giao dịch</label>
-      <select name="type" required>
-        <option value="Thu">Thu</option>
-        <option value="Chi">Chi</option>
-      </select>
+      <div class="home-card">
+        <h3>📈 Dashboard trực quan</h3>
+        <p>Xem tổng thu – chi theo ngày, tháng giống bảng điều khiển xe hơi.</p>
+        <a href="dashboard.html">Đi tới →</a>
+      </div>
 
-      <label>Danh mục</label>
-      <select name="category_id" id="categorySelect">
-        <option value="">-- Tự động phân loại --</option>
-        <option value="Ăn uống">Ăn uống</option>
-        <option value="Nhà ở">Nhà ở</option>
-        <option value="Di chuyển">Di chuyển</option>
-        <option value="Giải trí">Giải trí</option>
-        <option value="Lương">Lương</option>
-        <option value="Thưởng">Thưởng</option>
-      </select>
-
-      <label>Số tiền</label>
-      <input type="number" name="amount" required min="0" step="1">
-
-      <label>Ghi chú</label>
-      <input type="text" name="note">
-
-      <button type="submit">Gửi</button>
-    </form>
-
-    <iframe name="hidden_iframe" style="display:none;"></iframe>
+      <div class="home-card">
+        <h3>🔍 Insight thông minh</h3>
+        <p>Phát hiện chi tiêu bất thường, ví dụ tháng này tiền ăn ngoài tăng đột biến.</p>
+        <a href="insight.html">Đi tới →</a>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -73,84 +71,21 @@
   import { auth } from "../js/firebase.js";
   import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  const form = document.getElementById("transactionForm");
   const userEmailEl = document.getElementById("userEmail");
 
-  // 1. QUẢN LÝ ĐĂNG NHẬP
   onAuthStateChanged(auth, (user) => {
     if (!user) {
       window.location.href = "../login.html";
       return;
     }
     userEmailEl.textContent = user.email;
-    userIdInput.value = user.uid; // Gán UID vào hidden input
   });
 
-  // Xử lý logout
   window.logout = () => {
     import("../js/auth.js").then(module => module.logout());
   };
-
-  // Xử lý submit form
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const formData = new FormData(form);
-    const date = formData.get("date");
-    const amount = parseFloat(formData.get("amount")) || 0;
-    const type = formData.get("type");
-    const uid = userIdInput.value;
-
-    if (!date || !uid) {
-      alert("❌ Vui lòng đăng nhập và chọn ngày hợp lệ.");
-      return;
-    }
-
-    // Tính toán các trường bổ sung
-    const amount_signed = type === "Chi" ? -amount : amount;
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-
-    // Tạo transaction_id duy nhất
-    const now = new Date();
-    const timestamp = now.toISOString().replace(/[-:T]/g, '').slice(0, 14);
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    const transaction_id = `${timestamp}_${uid}_${random}`;
-
-    // Thêm các trường ẩn vào form
-    const addField = (name, value) => {
-      let input = form.querySelector(`input[name="${name}"]`);
-      if (!input) {
-        input = document.createElement("input");
-        input.type = "hidden";
-        input.name = name;
-        form.appendChild(input);
-      }
-      input.value = value;
-    };
-
-    addField("transaction_id", transaction_id);
-    addField("amount_signed", amount_signed);
-    addField("year", year);
-    addField("month", month);
-
-    // Gửi form
-    form.submit();
-
-    // Reset sau khi gửi
-    setTimeout(() => {
-      alert("✅ Đã lưu giao dịch!");
-      form.reset();
-      // Dọn input ẩn
-      ["transaction_id", "amount_signed", "year", "month"].forEach(name => {
-        const el = form.querySelector(`input[name="${name}"]`);
-        if (el) el.remove();
-      });
-    }, 400);
-  });
 </script>
-<script src="../js/chatbot.js"></script>
 
+<script src="../js/chatbot.js"></script>
 </body>
 </html>

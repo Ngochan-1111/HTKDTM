@@ -6,7 +6,7 @@
 }
 
 body.center {
-  background: linear-gradient(135deg, #ffe6f0, #fff5f8);
+  background: linear-gradient(135deg, #f5f7fb, #eef2ff);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,34 +14,45 @@ body.center {
 }
 
 .card {
-  background: #fff0f6;
-  padding: 40px 30px;
-  border-radius: 20px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  background: #ffffff;
+  padding: 42px 34px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   text-align: center;
 }
 
 .card h2 {
-  font-size: 26px;
-  color: #d63384;
-  margin-bottom: 25px;
+  font-size: 28px;
+  color: #1e40af;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 28px;
 }
 
 .card input {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border: 1px solid #cbd5e1;
   border-radius: 10px;
   font-size: 15px;
+}
+
+.card input:focus {
+  outline: none;
+  border-color: #2563eb;
 }
 
 .btn {
   width: 100%;
   padding: 12px;
-  background: #ff6b9c;
+  background: #2563eb;
   color: white;
   border: none;
   border-radius: 10px;
@@ -51,21 +62,21 @@ body.center {
 }
 
 .btn:hover {
-  background: #d63384;
+  background: #1e40af;
 }
 
 .link {
-  margin-top: 20px;
+  margin-top: 22px;
   font-size: 14px;
-  color: #555;
+  color: #475569;
 }
 
 .link a {
-  color: #ff6b9c;
+  color: #2563eb;
   text-decoration: none;
   font-weight: 600;
 }
 
 .link a:hover {
-  color: #d63384;
+  text-decoration: underline;
 }

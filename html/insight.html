@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Finance BI – Insight</title>
-
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/insight.css">
 </head>
@@ -20,31 +19,38 @@
     </div>
 
     <nav class="sidebar-nav">
-      <a href="index.html">📊 Thu – Chi</a>
-      <a href="dashboard.html">📈 Dashboard</a>
-      <a href="budget.html">💰 Ngân sách</a>
-      <a class="active">🧠 Insight</a>
+      <a href="index.html" class="nav-link">🏠 Trang chủ</a>
+      <a href="transactions.html" class="nav-link">📊 Thu – Chi</a>
+      <a href="dashboard.html" class="nav-link">📈 Dashboard</a>
+      <a href="budget.html" class="nav-link">💰 Ngân sách</a>
+      <a href="insight.html" class="nav-link active">🔍 Insight</a>
+      <a href="reminders.html" class="nav-link">🔔 Nhắc nhở</a>
     </nav>
   </aside>
 
   <!-- MAIN -->
-  <main class="main insight-brief">
+  <main class="main insight-page">
 
     <!-- HEADER -->
-    <header class="brief-header">
-      <h2>🧠 Finance Insight</h2>
+    <header class="insight-header">
+      <div>
+        <h2>🧠 Finance Insight</h2>
+        <p class="sub-text">
+          Tóm tắt & phân tích hành vi chi tiêu của bạn
+        </p>
+      </div>
       <span class="brief-date">Cập nhật tự động</span>
     </header>
 
-    <!-- INSIGHT TEXT -->
-    <section class="brief-narrative">
+    <!-- AI NARRATIVE -->
+    <section class="insight-narrative">
       <p id="insightText">
         Đang phân tích dữ liệu tài chính của bạn...
       </p>
     </section>
 
     <!-- TODAY -->
-    <section class="brief-signal">
+    <section class="insight-grid">
       <div class="signal-card income">
         <span>Thu hôm nay</span>
         <strong id="dayIncome">--</strong>
@@ -57,40 +63,29 @@
     </section>
 
     <!-- MONTH -->
-    <section class="brief-context">
-      <h4>Tổng quan tháng</h4>
+    <section class="month-summary">
+      <h4>📅 Tổng quan tháng này</h4>
 
-      <div class="context-row">
-        <span>Thu nhập</span>
+      <div class="summary-row">
+        <span>Tổng thu</span>
         <strong id="monthIncome">--</strong>
       </div>
 
-      <div class="context-row">
-        <span>Chi tiêu</span>
+      <div class="summary-row">
+        <span>Tổng chi</span>
         <strong id="monthExpense">--</strong>
       </div>
     </section>
 
     <!-- TREND -->
-    <div class="trend-card" id="trendCard">
-      <div class="trend-header">
-        📊 So sánh chi tiêu tháng
-      </div>
+    <section class="trend-card" id="trendCard">
+      <div class="trend-header">📊 So sánh chi tiêu tháng</div>
+      <div class="trend-value" id="expenseTrendPercent">--</div>
+      <div class="trend-text" id="expenseTrendText">--</div>
+      <div class="trend-level" id="expenseLevel">--</div>
+    </section>
 
-      <div class="trend-value" id="expenseTrendPercent">
-        --
-      </div>
-
-      <div class="trend-text" id="expenseTrendText">
-        --
-      </div>
-
-      <div class="trend-level" id="expenseLevel">
-        --
-      </div>
-    </div>
-
-    <footer class="brief-footer">
+    <footer class="insight-footer">
       Insight được sinh tự động từ dữ liệu giao dịch cá nhân
     </footer>
 

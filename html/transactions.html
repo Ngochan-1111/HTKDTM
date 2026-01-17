@@ -6,60 +6,80 @@
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
+
 <div class="container">
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-header">
       <h1>💼 Finance BI</h1>
       <p class="user-email">👤 <span id="userEmail">Tài khoản</span></p>
       <button onclick="logout()" class="btn-logout">Đăng xuất</button>
     </div>
+
     <nav class="sidebar-nav">
+      <a href="index.html" class="nav-link">🏠 Trang chủ</a>
       <a href="transactions.html" class="nav-link active">📊 Thu – Chi</a>
-      <a href="index.html" class="nav-link">📈 Dashboard</a>
-      <a href="#" class="nav-link">💰 Ngân sách</a>
-      <a href="#" class="nav-link">🔍 Insight</a>
+      <a href="dashboard.html" class="nav-link">📈 Dashboard</a>
+      <a href="budget.html" class="nav-link">💰 Ngân sách</a>
+      <a href="insight.html" class="nav-link">🔍 Insight</a>
       <a href="reminders.html" class="nav-link">🔔 Nhắc nhở</a>
     </nav>
   </aside>
 
-  <main class="main">
-    <section id="section-transactions" class="page-section active">
-      <h2 class="title form-page" style="padding: unset;">❤️ Finance Dashboard</h2>
-      <div class="form-page">
-        <form id="transactionForm" action="https://script.google.com/macros/s/AKfycbyHLR0j1jC7fyIV3isHEeipOCvtUs3tZFfGU0uPXn2GQp24orD2M7ifGm6qjbLUC06QNA/exec" method="POST" target="hidden_iframe" class="form-container">
-          <input type="hidden" name="user_id" id="user_id">
-          <label>Ngày giao dịch</label>
-          <input type="date" name="date" required>
-          <label>Loại giao dịch</label>
-          <select name="type" required>
-            <option value="Thu">Thu</option>
-            <option value="Chi">Chi</option>
-          </select>
-          <label>Danh mục</label>
-          <select name="category_id" required>
-            <option value="Ăn uống">Ăn uống</option>
-            <option value="Nhà ở">Nhà ở</option>
-            <option value="Di chuyển">Di chuyển</option>
-            <option value="Giải trí">Giải trí</option>
-            <option value="Lương">Lương</option>
-            <option value="Thưởng">Thưởng</option>
-          </select>
-          <label>Số tiền</label>
-          <input type="number" name="amount" required min="0" step="1">
-          <label>Ghi chú</label>
-          <input type="text" name="note">
-          <button type="submit">Gửi</button>
-        </form>
-      </div>
-    </section>
-    <iframe name="hidden_iframe" style="display:none;"></iframe>
-  </main>
+  <main class="main center-page">
+  <div class="center-wrapper">
+    <h2 class="page-title">📊 Nhập giao dịch thu – chi</h2>
+    <p class="page-desc">
+      Ghi lại các khoản chi tiêu như ăn uống, cà phê ☕ hoặc thu nhập như lương, thưởng.
+    </p>
+
+    <div class="card form-card">
+      <form id="transactionForm"
+        action="https://script.google.com/macros/s/AKfycbyHLR0j1jC7fyIV3isHEeipOCvtUs3tZFfGU0uPXn2GQp24orD2M7ifGm6qjbLUC06QNA/exec"
+        method="POST"
+        target="hidden_iframe">
+
+        <input type="hidden" name="user_id" id="user_id">
+
+        <label>Ngày giao dịch</label>
+        <input type="date" name="date" required>
+
+        <label>Loại giao dịch</label>
+        <select name="type" required>
+          <option value="Thu">Thu</option>
+          <option value="Chi">Chi</option>
+        </select>
+
+        <label>Danh mục</label>
+        <select name="category_id" required>
+          <option value="Ăn uống">Ăn uống</option>
+          <option value="Nhà ở">Nhà ở</option>
+          <option value="Di chuyển">Di chuyển</option>
+          <option value="Giải trí">Giải trí</option>
+          <option value="Lương">Lương</option>
+          <option value="Thưởng">Thưởng</option>
+        </select>
+
+        <label>Số tiền</label>
+        <input type="number" name="amount" min="0" step="1" required>
+
+        <label>Ghi chú</label>
+        <input type="text" name="note" placeholder="Ví dụ: Cà phê sáng ☕">
+
+        <button type="submit">💾 Lưu giao dịch</button>
+      </form>
+    </div>
+  </div>
+
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
+</main>
 </div>
 
 <script type="module">
   import { auth } from "../js/firebase.js";
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  
+  import { onAuthStateChanged } from
+    "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
   const userIdInput = document.getElementById("user_id");
   const transactionForm = document.getElementById("transactionForm");
 
@@ -69,38 +89,17 @@
     userIdInput.value = user.uid;
   });
 
-  transactionForm.addEventListener("submit", function (e) {
-    const formData = new FormData(transactionForm);
-    const date = formData.get("date");
-    const amount = parseFloat(formData.get("amount")) || 0;
-    const type = formData.get("type");
-    const uid = userIdInput.value;
-
-    const amount_signed = type === "Chi" ? -amount : amount;
-    const d = new Date(date);
-    const transaction_id = `${Date.now()}_${uid}`;
-
-    const addField = (name, value) => {
-      let input = transactionForm.querySelector(`input[name="${name}"]`);
-      if (!input) {
-        input = document.createElement("input"); input.type = "hidden"; input.name = name;
-        transactionForm.appendChild(input);
-      }
-      input.value = value;
-    };
-
-    addField("transaction_id", transaction_id);
-    addField("amount_signed", amount_signed);
-    addField("year", d.getFullYear());
-    addField("month", String(d.getMonth() + 1).padStart(2, '0'));
-
+  transactionForm.addEventListener("submit", function () {
     setTimeout(() => {
       alert("✅ Đã lưu giao dịch!");
       transactionForm.reset();
     }, 400);
   });
 
-  window.logout = () => { import("../js/auth.js").then(m => m.logout()); };
+  window.logout = () => {
+    import("../js/auth.js").then(m => m.logout());
+  };
 </script>
+<script src="../js/chatbot.js"></script>
 </body>
 </html>
