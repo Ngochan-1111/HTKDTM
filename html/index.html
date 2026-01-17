@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Finance BI</title>
+  <title>Finance BI - Nhập Thu Chi</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -17,14 +17,14 @@
 
     <nav class="sidebar-nav">
       <a class="active">📊 Thu – Chi</a>
-      <a>📈 Dashboard</a>
-      <a href="budget.html">💰 Ngân sách</a>
-      <a href="insight.html">🔍 Insight</a>
+      <a href="dashboard.html">📈 Dashboard</a>
+      <a href="#" href="budget.html">💰 Ngân sách</a>
+      <a href="#" href="insight.html">🔍 Insight</a>
     </nav>
   </aside>
 
   <main class="main">
-    <h2 class="title">❤️ Finance Dashboard</h2>
+    <h2 class="title">❤️ Nhập Giao Dịch</h2>
 
     <!-- FORM GỬI DỮ LIỆU -->
     <form
@@ -34,7 +34,6 @@
       target="hidden_iframe"
     >
       <input type="hidden" name="user_id" id="user_id">
-      <!-- Các input ẩn sẽ được thêm tự động trước khi submit -->
 
       <label>Ngày giao dịch</label>
       <input type="date" name="date" required>
@@ -69,12 +68,9 @@
   </main>
 </div>
 
-<!-- Sử dụng module Firebase -->
 <script type="module">
   import { auth } from "../js/firebase.js";
-  import {
-    onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
   const form = document.getElementById("transactionForm");
   const userEmailEl = document.getElementById("userEmail");
@@ -87,22 +83,20 @@
       return;
     }
     userEmailEl.textContent = user.email;
-    userIdInput.value = user.uid; // Gán UID vào hidden input
+    userIdInput.value = user.uid;
   });
 
-  // Xử lý logout (dùng hàm trong auth.js)
+  // Xử lý logout
   window.logout = () => {
-    import("../js/auth.js").then(module => {
-      module.logout();
-    });
+    import("../js/auth.js").then(module => module.logout());
   };
 
-  // Can thiệp trước khi submit form
+  // Xử lý submit form
   form.addEventListener("submit", function (e) {
     e.preventDefault();
 
     const formData = new FormData(form);
-    const date = formData.get("date"); // YYYY-MM-DD
+    const date = formData.get("date");
     const amount = parseFloat(formData.get("amount")) || 0;
     const type = formData.get("type");
     const uid = userIdInput.value;
@@ -120,7 +114,7 @@
 
     // Tạo transaction_id duy nhất
     const now = new Date();
-    const timestamp = now.toISOString().replace(/[-:T]/g, '').slice(0, 14); // vd: 20260113153022
+    const timestamp = now.toISOString().replace(/[-:T]/g, '').slice(0, 14);
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     const transaction_id = `${timestamp}_${uid}_${random}`;
 
@@ -141,14 +135,14 @@
     addField("year", year);
     addField("month", month);
 
-    // Submit form
+    // Gửi form
     form.submit();
 
-    // Thông báo & reset
+    // Reset sau khi gửi
     setTimeout(() => {
-      alert("✅ Đã lưu giao dịch thành công!");
+      alert("✅ Đã lưu giao dịch!");
       form.reset();
-      // Xóa các input ẩn
+      // Dọn input ẩn
       ["transaction_id", "amount_signed", "year", "month"].forEach(name => {
         const el = form.querySelector(`input[name="${name}"]`);
         if (el) el.remove();
