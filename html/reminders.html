@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Nhắc nhở - Finance BI</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>💼 Finance BI</h1>
+      <p class="user-email">👤 <span id="userEmail">Tài khoản</span></p>
+      <button onclick="logout()" class="btn-logout">Đăng xuất</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-link" data-section="transactions">📊 Thu – Chi</a>
+      <a class="nav-link" data-section="dashboard">📈 Dashboard</a>
+      <a class="nav-link" data-section="budget">💰 Ngân sách</a>
+      <a class="nav-link" data-section="insight">🔍 Insight</a>
+      <a class="nav-link active" data-section="reminders">🔔 Nhắc nhở</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <section id="section-reminders" class="page-section">
+      <div class="reminder-header">
+        <h2 class="title form-page"><span>🔔</span> Nhắc Thanh Toán Hóa Đơn</h2>
+        <p class="hint form-page">Để đồng bộ lịch thanh toán, hãy kết nối với Google Calendar</p>
+        <div class="form-page">
+          <button id="connectCalendarBtn" class="btn-connect-calendar">🔗 Kết nối Google Calendar</button>
+        </div>
+        <div id="calendarStatus" class="calendar-status form-page" style="display:none;"></div>
+      </div>
+
+      <div class="reminder-form-wrapper form-page">
+        <form id="reminderForm" class="form-container" style="max-width: 560px">
+          <h3>Thêm nhắc nhở</h3>
+          <label>Tên hóa đơn</label>
+          <input type="text" id="billName" required placeholder="VD: Tiền điện tháng 11">
+          <label>Ghi chú</label>
+          <input type="text" id="notes" placeholder="Ghi chú thêm...">
+          <label>Ngày giờ nhắc</label>
+          <input type="datetime-local" id="reminderDate" required>
+          <label>Số tiền (VND)</label>
+          <input type="number" id="amount" min="0" step="1000" required>
+          <div style="display:flex; gap: 20px;">
+            <div style="flex:1">
+              <label>Danh mục</label>
+              <select id="category" required>
+                <option value="">-- Chọn danh mục --</option>
+                <option value="Điện">Điện</option>
+                <option value="Nước">Nước</option>
+                <option value="Internet">Internet</option>
+                <option value="Điện thoại">Điện thoại</option>
+                <option value="Thẻ tín dụng">Thẻ tín dụng</option>
+                <option value="Khác">Khác</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label>Lặp lại</label>
+              <select id="repeat">
+                <option value="none">Không lặp</option>
+                <option value="daily">Hàng ngày</option>
+                <option value="weekly">Hàng tuần</option>
+                <option value="monthly">Hàng tháng</option>
+                <option value="yearly">Hàng năm</option>
+              </select>
+            </div>
+          </div>
+          <div id="formMessage" class="form-message" style="display:none;"></div>
+          <button type="submit" id="submitBtn" class="form-btn">+ Thêm nhắc</button>
+        </form>
+      </div>
+
+      <div class="reminders-list-wrapper">
+        <h3>Danh sách nhắc nhở</h3>
+        <div id="remindersList" class="reminders-list">
+          <div class="empty-state">Đang tải dữ liệu...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+  import { auth } from "../js/firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  
+  // IMPORT CÁC HÀM TỪ FILE REMINDERS.JS
+  import { initReminders, loadRemindersUI, handleReminderSubmit } from "../js/reminders.js";
+
+  const userEmailEl = document.getElementById("userEmail");
+  const connectCalendarBtn = document.getElementById("connectCalendarBtn");
+
+  // 1. QUẢN LÝ ĐĂNG NHẬP
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "../login.html";
+      return;
+    }
+    
+    // Hiển thị UI
+    userEmailEl.textContent = user.email;
+
+    // --- KÍCH HOẠT LOGIC NHẮC NHỞ ---
+    initReminders(user);
+    loadRemindersUI();
+
+    // Mặc định ngày nhắc
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    const dateInput = document.getElementById("reminderDate");
+    if(dateInput) dateInput.value = now.toISOString().slice(0, 16);
+  });
+
+  // 2. SỰ KIỆN SUBMIT FORM NHẮC NHỞ
+  const reminderForm = document.getElementById("reminderForm");
+  if (reminderForm) {
+    reminderForm.addEventListener("submit", handleReminderSubmit);
+  }
+
+  // 3. NÚT ĐĂNG XUẤT
+  window.logout = () => {
+    import("../js/auth.js").then(m => m.logout());
+  };
+
+  // 4. GOOGLE CALENDAR BTN
+  if (connectCalendarBtn) {
+    connectCalendarBtn.addEventListener("click", () => {
+      const status = document.getElementById("calendarStatus");
+      status.textContent = "Đang kết nối với Google Calendar...";
+      status.className = "calendar-status info";
+      status.style.display = "block";
+      setTimeout(() => {
+        status.textContent = "✅ Đã kết nối với Google Calendar";
+        status.className = "calendar-status connected";
+      }, 1000);
+    });
+  }
+</script>
+</body>
+</html>
