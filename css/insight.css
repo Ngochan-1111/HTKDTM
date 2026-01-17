@@ -1,0 +1,159 @@
+/* ===== PAGE ===== */
+.insight-brief {
+  max-width: 900px;
+  padding-bottom: 48px;
+}
+
+/* ===== HEADER ===== */
+.brief-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brief-header h2 {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.brief-date {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* ===== NARRATIVE (AI insight) ===== */
+.brief-narrative {
+  margin-top: 20px;
+  padding: 18px 22px;
+  background: #f1f5f9;
+  border-left: 5px solid #2563eb;
+  border-radius: 14px;
+}
+
+.brief-narrative p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #0f172a;
+  font-weight: 500;
+}
+
+/* ===== TODAY ===== */
+.brief-signal {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.signal-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.signal-card span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.signal-card strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.signal-card.income strong {
+  color: #15803d;
+}
+
+.signal-card.expense strong {
+  color: #b91c1c;
+}
+
+/* ===== MONTH ===== */
+.brief-context {
+  margin-top: 32px;
+  background: #ffffff;
+  padding: 20px 22px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.brief-context h4 {
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.context-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  font-size: 15px;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.context-row:last-child {
+  border-bottom: none;
+}
+
+.context-row strong {
+  font-size: 17px;
+}
+
+/* ===== TREND ===== */
+.trend-card {
+  margin-top: 32px;
+  padding: 22px;
+  border-radius: 18px;
+  background: #0f172a;
+  color: #f8fafc;
+  box-shadow: 0 16px 36px rgba(15,23,42,0.35);
+}
+
+.trend-card.warning {
+  background: linear-gradient(135deg, #fb7185, #be123c);
+}
+
+.trend-card.safe {
+  background: linear-gradient(135deg, #4ade80, #15803d);
+}
+
+.trend-header {
+  font-size: 15px;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.trend-value {
+  font-size: 44px;
+  font-weight: 800;
+  margin: 8px 0;
+}
+
+.trend-text {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.trend-level {
+  margin-top: 10px;
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.18);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ===== FOOTER ===== */
+.brief-footer {
+  margin-top: 28px;
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+}

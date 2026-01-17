@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Finance BI – Insight</title>
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/insight.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>💼 Finance BI</h1>
+      <p class="user-email">👤 <span id="userEmail">Tài khoản</span></p>
+      <button onclick="logout()" class="btn-logout">Đăng xuất</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="index.html">📊 Thu – Chi</a>
+      <a href="dashboard.html">📈 Dashboard</a>
+      <a href="budget.html">💰 Ngân sách</a>
+      <a class="active">🧠 Insight</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main insight-brief">
+
+    <!-- HEADER -->
+    <header class="brief-header">
+      <h2>🧠 Finance Insight</h2>
+      <span class="brief-date">Cập nhật tự động</span>
+    </header>
+
+    <!-- INSIGHT TEXT -->
+    <section class="brief-narrative">
+      <p id="insightText">
+        Đang phân tích dữ liệu tài chính của bạn...
+      </p>
+    </section>
+
+    <!-- TODAY -->
+    <section class="brief-signal">
+      <div class="signal-card income">
+        <span>Thu hôm nay</span>
+        <strong id="dayIncome">--</strong>
+      </div>
+
+      <div class="signal-card expense">
+        <span>Chi hôm nay</span>
+        <strong id="dayExpense">--</strong>
+      </div>
+    </section>
+
+    <!-- MONTH -->
+    <section class="brief-context">
+      <h4>Tổng quan tháng</h4>
+
+      <div class="context-row">
+        <span>Thu nhập</span>
+        <strong id="monthIncome">--</strong>
+      </div>
+
+      <div class="context-row">
+        <span>Chi tiêu</span>
+        <strong id="monthExpense">--</strong>
+      </div>
+    </section>
+
+    <!-- TREND -->
+    <div class="trend-card" id="trendCard">
+      <div class="trend-header">
+        📊 So sánh chi tiêu tháng
+      </div>
+
+      <div class="trend-value" id="expenseTrendPercent">
+        --
+      </div>
+
+      <div class="trend-text" id="expenseTrendText">
+        --
+      </div>
+
+      <div class="trend-level" id="expenseLevel">
+        --
+      </div>
+    </div>
+
+    <footer class="brief-footer">
+      Insight được sinh tự động từ dữ liệu giao dịch cá nhân
+    </footer>
+
+  </main>
+</div>
+
+<script type="module">
+  import { auth } from "../js/firebase.js";
+  import { onAuthStateChanged } from
+    "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "../login.html";
+      return;
+    }
+
+    document.getElementById("userEmail").innerText = user.email;
+    window.CURRENT_USER_ID = user.uid;
+
+    loadInsight("DAY_TOTAL");
+    loadInsight("MONTH_TOTAL");
+  });
+
+  window.logout = () => {
+    import("../js/auth.js").then(m => m.logout());
+  };
+</script>
+
+<script src="../js/insight.js"></script>
+<script src="../js/chatbot.js"></script>
+</body>
+</html>
