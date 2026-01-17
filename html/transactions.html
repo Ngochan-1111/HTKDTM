@@ -23,57 +23,57 @@
       <a href="budget.html" class="nav-link">💰 Ngân sách</a>
       <a href="insight.html" class="nav-link">🔍 Insight</a>
       <a href="reminders.html" class="nav-link">🔔 Nhắc nhở</a>
+      <a href="analysis.html" class="nav-link">🔎 Analysis</a>
     </nav>
   </aside>
 
   <main class="main center-page">
-    <div class="center-wrapper">
-      <h2 class="page-title">📊 Nhập giao dịch thu – chi</h2>
-      <p class="page-desc">
-        Ghi lại các khoản chi tiêu như ăn uống, cà phê ☕ hoặc thu nhập như lương, thưởng.
-      </p>
+  <div class="center-wrapper">
+    <h2 class="page-title">📊 Nhập giao dịch thu – chi</h2>
+    <p class="page-desc">
+      Ghi lại các khoản chi tiêu như ăn uống, cà phê ☕ hoặc thu nhập như lương, thưởng.
+    </p>
 
-      <div class="card form-card">
-        <form
-          id="transactionForm"
-          action="https://script.google.com/macros/s/AKfycbyHLR0j1jC7fyIV3isHEeipOCvtUs3tZFfGU0uPXn2GQp24orD2M7ifGm6qjbLUC06QNA/exec"
-          method="POST"
-          target="hidden_iframe"
-        >
-          <input type="hidden" name="user_id" id="user_id">
+    <div class="card form-card">
+      <form id="transactionForm"
+        action="https://script.google.com/macros/s/AKfycbyHLR0j1jC7fyIV3isHEeipOCvtUs3tZFfGU0uPXn2GQp24orD2M7ifGm6qjbLUC06QNA/exec"
+        method="POST"
+        target="hidden_iframe">
 
-          <label>Ngày giao dịch</label>
-          <input type="date" name="date" required>
+        <input type="hidden" name="user_id" id="user_id">
 
-          <label>Loại giao dịch</label>
-          <select name="type" required>
-            <option value="Thu">Thu</option>
-            <option value="Chi">Chi</option>
-          </select>
+        <label>Ngày giao dịch</label>
+        <input type="date" name="date" required>
 
-          <label>Danh mục</label>
-          <select name="category_id" required>
-            <option value="Ăn uống">Ăn uống</option>
-            <option value="Nhà ở">Nhà ở</option>
-            <option value="Di chuyển">Di chuyển</option>
-            <option value="Giải trí">Giải trí</option>
-            <option value="Lương">Lương</option>
-            <option value="Thưởng">Thưởng</option>
-          </select>
+        <label>Loại giao dịch</label>
+        <select name="type" required>
+          <option value="Thu">Thu</option>
+          <option value="Chi">Chi</option>
+        </select>
 
-          <label>Số tiền</label>
-          <input type="number" name="amount" min="0" step="1" required>
+        <label>Danh mục</label>
+        <select name="category_id" required>
+          <option value="Ăn uống">Ăn uống</option>
+          <option value="Nhà ở">Nhà ở</option>
+          <option value="Di chuyển">Di chuyển</option>
+          <option value="Giải trí">Giải trí</option>
+          <option value="Lương">Lương</option>
+          <option value="Thưởng">Thưởng</option>
+        </select>
 
-          <label>Ghi chú</label>
-          <input type="text" name="note" placeholder="Ví dụ: Cà phê sáng ☕">
+        <label>Số tiền</label>
+        <input type="number" name="amount" min="0" step="1" required>
 
-          <button type="submit">💾 Lưu giao dịch</button>
-        </form>
-      </div>
+        <label>Ghi chú</label>
+        <input type="text" name="note" placeholder="Ví dụ: Cà phê sáng ☕">
+
+        <button type="submit">💾 Lưu giao dịch</button>
+      </form>
     </div>
+  </div>
 
-    <iframe name="hidden_iframe" style="display:none;"></iframe>
-  </main>
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
+</main>
 </div>
 
 <script type="module">
@@ -81,52 +81,56 @@
   import { onAuthStateChanged } from
     "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  const userIdInput = document.getElementById("user_id");
-  const transactionForm = document.getElementById("transactionForm");
+  const form = document.getElementById("transactionForm");
   const userEmailEl = document.getElementById("userEmail");
+  const userIdInput = document.getElementById("user_id");
 
   onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "../login.html";
-      return;
-    }
-    userEmailEl.textContent = user.email;
+    if (!user) { window.location.href = "../login.html"; return; }
+    document.getElementById("userEmail").textContent = user.email;
     userIdInput.value = user.uid;
   });
 
-  transactionForm.addEventListener("submit", function (e) {
+  // Xử lý logout
+  window.logout = () => {
+    import("../js/auth.js").then(module => module.logout());
+  };
+
+  // Xử lý submit form
+  form.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const formData = new FormData(transactionForm);
+    const formData = new FormData(form);
     const date = formData.get("date");
     const amount = parseFloat(formData.get("amount")) || 0;
     const type = formData.get("type");
     const uid = userIdInput.value;
 
     if (!date || !uid) {
-      alert("❌ Thiếu ngày giao dịch hoặc chưa đăng nhập.");
+      alert("❌ Vui lòng đăng nhập và chọn ngày hợp lệ.");
       return;
     }
 
-    // ===== BỔ SUNG LOGIC QUAN TRỌNG =====
+    // Tính toán các trường bổ sung
     const amount_signed = type === "Chi" ? -amount : amount;
-
     const d = new Date(date);
     const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, '0');
 
+    // Tạo transaction_id duy nhất
     const now = new Date();
-    const timestamp = now.toISOString().replace(/[-:T]/g, "").slice(0, 14);
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, "0");
+    const timestamp = now.toISOString().replace(/[-:T]/g, '').slice(0, 14);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     const transaction_id = `${timestamp}_${uid}_${random}`;
 
+    // Thêm các trường ẩn vào form
     const addField = (name, value) => {
-      let input = transactionForm.querySelector(`input[name="${name}"]`);
+      let input = form.querySelector(`input[name="${name}"]`);
       if (!input) {
         input = document.createElement("input");
         input.type = "hidden";
         input.name = name;
-        transactionForm.appendChild(input);
+        form.appendChild(input);
       }
       input.value = value;
     };
@@ -136,24 +140,21 @@
     addField("year", year);
     addField("month", month);
 
-    // ===== GỬI FORM =====
-    transactionForm.submit();
+    // Gửi form
+    form.submit();
 
+    // Reset sau khi gửi
     setTimeout(() => {
       alert("✅ Đã lưu giao dịch!");
-      transactionForm.reset();
+      form.reset();
+      // Dọn input ẩn
       ["transaction_id", "amount_signed", "year", "month"].forEach(name => {
-        const el = transactionForm.querySelector(`input[name="${name}"]`);
+        const el = form.querySelector(`input[name="${name}"]`);
         if (el) el.remove();
       });
     }, 400);
   });
-
-  window.logout = () => {
-    import("../js/auth.js").then(m => m.logout());
-  };
 </script>
-
 <script src="../js/chatbot.js"></script>
 </body>
 </html>

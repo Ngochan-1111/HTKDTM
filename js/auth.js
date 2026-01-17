@@ -45,10 +45,9 @@ window.login = function () {
     });
 };
 
-
 window.logout = function () {
   signOut(auth).then(() => {
-
+    
     // ✅ XOÁ USER KHI ĐĂNG XUẤT
     localStorage.removeItem("finance_user_id");
     localStorage.removeItem("finance_user_email");
@@ -59,7 +58,6 @@ window.logout = function () {
     alert("Đăng xuất thất bại: " + err.message);
   });
 };
-
 
 /* HIỂN THỊ EMAIL */
 document.addEventListener("DOMContentLoaded", () => {

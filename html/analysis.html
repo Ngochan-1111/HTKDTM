@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Finance BI - Home</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/analysis.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>💼 Finance BI</h1>
+                <p class="user-email">👤 <span id="userEmail">Tài khoản</span></p>
+                <button onclick="logout()" class="btn-logout">Đăng xuất</button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-link">🏠 Trang chủ</a>
+                <a href="transactions.html" class="nav-link">📊 Thu – Chi</a>
+                <a href="dashboard.html" class="nav-link">📈 Dashboard</a>
+                <a href="budget.html" class="nav-link">💰 Ngân sách</a>
+                <a href="insight.html" class="nav-link">🔍 Insight</a>
+                <a href="reminders.html" class="nav-link">🔔 Nhắc nhở</a>
+                <a href="analysis.html" class="nav-link active">🔎 Analysis</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+
+            <!-- hieu -->
+            <div class="analysis-section">
+                <h3>Lịch sử chi tiêu</h3>
+                <table id="summary-table" class="data-table"></table>
+
+                <h3>Dự báo tháng tới</h3>
+                <table id="du-bao-table" class="data-table"></table>
+            </div>
+
+            <div class="analysis-section">
+                <h3>Thay đổi % chi tiêu theo tháng</h3>
+                <table id="change-pct-table" class="data-table"></table>
+
+                <h3>Xu hướng tổng thể</h3>
+                <table id="trends-table" class="data-table"></table>
+
+                <h3>Biểu đồ</h3>
+                <a class="btn-das" href="dashboard.html" class="nav-link">📈 Dashboard</a>
+            </div>
+            <!-- hieu -->
+
+        </main>
+
+    </div>
+    <!-- hieu -->
+    <script type="module">
+        import { auth } from "../js/firebase.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const form = document.getElementById("transactionForm");
+        const userEmailEl = document.getElementById("userEmail");
+        const userIdInput = document.getElementById("user_id");
+
+        // Kiểm tra trạng thái đăng nhập
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../login.html";
+                return;
+            }
+            userEmailEl.textContent = user.email;
+            userIdInput.value = user.uid; // Gán UID vào hidden input
+        });
+
+        // hieu
+        //-----------------------------------------------------------
+        // Fetch và hiển thị dữ liệu Summary_Chi
+        function loadSummaryChi() {
+            const apiUrl =
+                "https://script.google.com/macros/s/AKfycbzCSgrYuVx-uo2f5ZewQJlIgJISNcVKFmbUgPLeBGK92HTu-u59brpZeKzVS7Vu2VfUgQ/exec?type=summary_chi";
+
+            fetch(apiUrl)
+                .then((res) => res.json())
+                .then((data) => {
+                    const table = document.getElementById("summary-table");
+                    table.innerHTML = "";
+
+                    data
+                        // 👉 LỌC ROW RỖNG
+                        .filter(
+                            (row) =>
+                                row &&
+                                row.some(
+                                    (cell) =>
+                                        cell !== "" &&
+                                        cell !== null &&
+                                        cell !== undefined
+                                )
+                        )
+                        .forEach((row, index) => {
+                            const tr = document.createElement("tr");
+                            row.forEach((cell) => {
+                                const td = document.createElement(
+                                    index === 0 ? "th" : "td"
+                                );
+                                td.textContent = cell;
+                                tr.appendChild(td);
+                            });
+                            table.appendChild(tr);
+                        });
+                })
+                .catch((err) =>
+                    console.error("Lỗi fetch Summary_Chi:", err)
+                );
+        }
+
+
+        // Fetch và hiển thị dữ liệu Du_Bao
+        function loadDuBao() {
+            const apiUrl =
+                "https://script.google.com/macros/s/AKfycbzCSgrYuVx-uo2f5ZewQJlIgJISNcVKFmbUgPLeBGK92HTu-u59brpZeKzVS7Vu2VfUgQ/exec?type=du_bao";
+
+            fetch(apiUrl)
+                .then((res) => res.json())
+                .then((data) => {
+                    const table = document.getElementById("du-bao-table");
+                    table.innerHTML = "";
+
+                    data
+                        .filter(
+                            (row) =>
+                                row &&
+                                row.some(
+                                    (cell) =>
+                                        cell !== "" &&
+                                        cell !== null &&
+                                        cell !== undefined
+                                )
+                        )
+                        .forEach((row, index) => {
+                            const tr = document.createElement("tr");
+                            row.forEach((cell) => {
+                                const td = document.createElement(
+                                    index === 0 ? "th" : "td"
+                                );
+                                td.textContent = cell;
+                                tr.appendChild(td);
+                            });
+                            table.appendChild(tr);
+                        });
+                })
+                .catch((err) =>
+                    console.error("Lỗi fetch Du_Bao:", err)
+                );
+        }
+
+        // Load bảng thay đổi %
+        function loadChangePct() {
+            fetch("https://script.google.com/macros/s/AKfycbwz78_UNY6sIVMmvJuMJSVmEBeMEKBFpvJNb4Rut6aWjiiHw4w8c0NlkyMctzu7_4JYQw/exec?type=change_pct")
+                .then(res => res.json())
+                .then(data => {
+                    const table = document.getElementById("change-pct-table");
+                    table.innerHTML = "";
+
+                    // Header
+                    const trHeader = document.createElement("tr");
+                    ["Tháng", "Danh mục", "Tổng chi", "% Thay đổi"].forEach(h => {
+                        const th = document.createElement("th");
+                        th.textContent = h;
+                        trHeader.appendChild(th);
+                    });
+                    table.appendChild(trHeader);
+
+                    data.forEach(row => {
+                        const tr = document.createElement("tr");
+
+                        const period = String(row.period);
+                        const periodText = `${period.slice(0, 4)}-${period.slice(4)}`;
+
+                        tr.innerHTML = `
+          <td>${periodText}</td>
+          <td>${row.category_final}</td>
+          <td>${row.Tong_Chi_Abs.toLocaleString("vi-VN")}</td>
+          <td>${row.Change_Pct.toFixed(2)}%</td>
+        `;
+                        table.appendChild(tr);
+                    });
+                })
+                .catch(err => console.error("change_pct lỗi:", err));
+        }
+
+        function loadTrends() {
+            fetch("https://script.google.com/macros/s/AKfycbwz78_UNY6sIVMmvJuMJSVmEBeMEKBFpvJNb4Rut6aWjiiHw4w8c0NlkyMctzu7_4JYQw/exec?type=trends")
+                .then(res => res.json())
+                .then(data => {
+                    const table = document.getElementById("trends-table");
+                    table.innerHTML = "";
+
+                    const trHeader = document.createElement("tr");
+                    ["Xu hướng"].forEach(h => {
+                        const th = document.createElement("th");
+                        th.textContent = h;
+                        trHeader.appendChild(th);
+                    });
+                    table.appendChild(trHeader);
+
+                    data.forEach(row => {
+                        const tr = document.createElement("tr");
+                        const td = document.createElement("td");
+                        td.textContent = row.trend;
+                        tr.appendChild(td);
+                        table.appendChild(tr);
+                    });
+                })
+                .catch(err => console.error("trends lỗi:", err));
+        }
+
+        // Load khi đăng nhập thành công
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // ... code cũ ...
+                loadSummaryChi(); // Load tính năng 1
+                loadDuBao();
+                loadChangePct(); // Load thay đổi %
+                loadTrends();    // Load xu hướng
+            }
+        });
+        //-----------------------------------------------------------
+
+        // Xử lý logout (dùng hàm trong auth.js)
+        window.logout = () => {
+            import("../js/auth.js").then((module) => {
+                module.logout();
+            });
+        };
+
+        // Can thiệp trước khi submit form
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const date = formData.get("date"); // YYYY-MM-DD
+            const amount = parseFloat(formData.get("amount")) || 0;
+            const type = formData.get("type");
+            const uid = userIdInput.value;
+
+            if (!date || !uid) {
+                alert("❌ Vui lòng đăng nhập và chọn ngày hợp lệ.");
+                return;
+            }
+
+            // Tính toán các trường bổ sung
+            const amount_signed = type === "Chi" ? -amount : amount;
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+
+            // Tạo transaction_id duy nhất
+            const now = new Date();
+            const timestamp = now.toISOString().replace(/[-:T]/g, "").slice(0, 14); // vd: 20260113153022
+            const random = Math.floor(Math.random() * 1000)
+                .toString()
+                .padStart(3, "0");
+            const transaction_id = `${timestamp}_${uid}_${random}`;
+
+            // Thêm các trường ẩn vào form
+            const addField = (name, value) => {
+                let input = form.querySelector(`input[name="${name}"]`);
+                if (!input) {
+                    input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = name;
+                    form.appendChild(input);
+                }
+                input.value = value;
+            };
+
+            addField("transaction_id", transaction_id);
+            addField("amount_signed", amount_signed);
+            addField("year", year);
+            addField("month", month);
+
+            // Submit form
+            form.submit();
+
+            // Thông báo & reset
+            setTimeout(() => {
+                alert("✅ Đã lưu giao dịch thành công!");
+                form.reset();
+                // Xóa các input ẩn
+                ["transaction_id", "amount_signed", "year", "month"].forEach(
+                    (name) => {
+                        const el = form.querySelector(`input[name="${name}"]`);
+                        if (el) el.remove();
+                    }
+                );
+            }, 400);
+        });
+    </script>
+
+</body>
+
+</html>
