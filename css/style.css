@@ -86,6 +86,9 @@ body {
   color: #2f2d52;
 }
 
+.page-section { display:block; }
+.page-section.active { display:block; }
+
 /* Card */
 .card {
   background: white;
@@ -104,7 +107,8 @@ form input,
 form select {
   width: 100%;
   padding: 12px;
-  margin-bottom: 15px;
+  margin-top: 8px;
+  margin-bottom: 23px;
   border-radius: 8px;
   border: 1px solid #ddd;
   font-size: 14px;
@@ -178,4 +182,159 @@ form button:hover {
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 6px;
+}
+
+.form-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 420px;
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 36px 32px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+/* Reminders */
+.reminder-header { 
+  margin-bottom: 20px; 
+}
+
+.reminder-header .hint { 
+  color:#64748b; 
+  margin:6px 0 12px 0; 
+}
+
+.btn-connect-calendar {
+  padding: 10px 16px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-connect-calendar:hover { 
+  opacity: 0.9; 
+}
+
+.calendar-status { 
+  margin-top:8px; 
+  font-size:13px; 
+}
+
+.calendar-status.connected { 
+  color:#065f46; 
+}
+
+.calendar-status.error { 
+  color:#991b1b; 
+}
+
+.reminder-form-wrapper { 
+  margin-bottom: 20px; 
+}
+
+.reminders-list-wrapper { 
+  margin: 0 40px 0 50px;
+  max-height: 400px; 
+  overflow-y: auto; 
+}
+
+.reminders-list { 
+  display: flex; 
+  flex-direction: 
+  column; 
+  gap: 10px; 
+}
+
+.empty-state { 
+  padding: 20px; 
+  background:#f8fafc; 
+  border:1px solid #e5e7eb; 
+  border-radius: 10px; 
+  text-align:center; 
+  color:#64748b; 
+}
+
+.reminder-item { 
+  padding: 14px; 
+  border:1px solid #e5e7eb;
+  border-radius:10px; 
+  background:#fff; 
+  display:flex; 
+  justify-content:space-between; 
+  gap:12px; 
+}
+
+.reminder-title {
+  font-weight:600;
+  margin-bottom:6px; 
+}
+
+.reminder-details { 
+  font-size:13px; 
+  color:#64748b; 
+  display:flex; 
+  flex-direction:column; 
+  gap:4px; 
+}
+
+.reminder-amount { 
+  color:#ef4444; 
+  font-weight:700; 
+  margin-top:8px; 
+}
+
+.reminder-actions { 
+  display:flex; 
+  gap:8px; 
+}
+
+.btn-action { 
+  width: 50px;
+  height: 50px; 
+  padding:6px 10px; 
+  border:none; 
+  border-radius:6px; 
+  cursor:pointer; 
+  font-size:12px; 
+}
+
+.btn-edit { 
+  background:#eef2ff; 
+  color:#4f46e5; 
+}
+
+.btn-delete { 
+  background:#fee2e2; 
+  color:#dc2626; 
+}
+
+.reminder-status { 
+  display:inline-block;
+  margin-top:6px; 
+  padding:4px 8px; 
+  border-radius:6px; 
+  font-size:11px; 
+  font-weight:600; 
+}
+
+.status-pending { 
+  background:#fef3c7; 
+  color:#92400e; 
+}
+
+.status-completed { 
+  background:#d1fae5; 
+  color:#065f46; 
+}
+
+.status-overdue { 
+  background:#fee2e2; 
+  color:#991b1b; 
 }

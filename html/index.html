@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Finance BI - Nhập Thu Chi</title>
+  <title>Finance BI - Home - Nhập Thu Chi</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -16,10 +16,11 @@
     </div>
 
     <nav class="sidebar-nav">
-      <a class="active">📊 Thu – Chi</a>
-      <a href="dashboard.html">📈 Dashboard</a>
-      <a href="#" href="budget.html">💰 Ngân sách</a>
-      <a href="#" href="insight.html">🔍 Insight</a>
+      <a href="transactions.html" class="nav-link">📊 Thu – Chi</a>
+      <a href="dashboard.html" class="nav-link" href="dashboard.html">📈 Dashboard</a>
+      <a href="budget.html" class="nav-link" href="#" href="budget.html">💰 Ngân sách</a>
+      <a href="insight.html" class="nav-link" href="#" href="insight.html">🔍 Insight</a>
+      <a href="reminders.html" class="nav-link">🔔 Nhắc nhở</a>
     </nav>
   </aside>
 
@@ -74,16 +75,15 @@
 
   const form = document.getElementById("transactionForm");
   const userEmailEl = document.getElementById("userEmail");
-  const userIdInput = document.getElementById("user_id");
 
-  // Kiểm tra trạng thái đăng nhập
+  // 1. QUẢN LÝ ĐĂNG NHẬP
   onAuthStateChanged(auth, (user) => {
     if (!user) {
       window.location.href = "../login.html";
       return;
     }
     userEmailEl.textContent = user.email;
-    userIdInput.value = user.uid;
+    userIdInput.value = user.uid; // Gán UID vào hidden input
   });
 
   // Xử lý logout
