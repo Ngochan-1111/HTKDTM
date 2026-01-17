@@ -8,7 +8,6 @@
 <body>
 
 <div class="container">
-
   <aside class="sidebar">
     <div class="sidebar-header">
       <h1>💼 Finance BI</h1>
@@ -19,7 +18,7 @@
     <nav class="sidebar-nav">
       <a class="active">📊 Thu – Chi</a>
       <a>📈 Dashboard</a>
-      <a>💰 Ngân sách</a>
+      <a href="budget.html">💰 Ngân sách</a>
       <a href="insight.html">🔍 Insight</a>
     </nav>
   </aside>
@@ -47,7 +46,8 @@
       </select>
 
       <label>Danh mục</label>
-      <select name="category_id" required>
+      <select name="category_id" id="categorySelect">
+        <option value="">-- Tự động phân loại --</option>
         <option value="Ăn uống">Ăn uống</option>
         <option value="Nhà ở">Nhà ở</option>
         <option value="Di chuyển">Di chuyển</option>
