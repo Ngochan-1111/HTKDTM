@@ -24,7 +24,6 @@
       <a href="budget.html" class="nav-link">💰 Ngân sách</a>
       <a href="insight.html" class="nav-link">🔍 Insight</a>
       <a href="reminders.html" class="nav-link">🔔 Nhắc nhở</a>
-      <a href="analysis.html" class="nav-link">🔎 Analysis</a>
     </nav>
   </aside>
 
@@ -90,7 +89,6 @@
       <div class="chart-card">
         <h3>📊 Tỷ trọng chi tiêu</h3>
         <canvas id="categoryChart"></canvas>
-        <div id="top-categories" class="category-list"></div>
       </div>
 
       <div class="chart-card">
@@ -107,7 +105,9 @@
   import { auth } from "../js/firebase.js";
   import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  /* ===== DOM BIND (BẮT BUỘC VỚI MODULE) ===== */
+  const CSV_URL =
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSFrDLFS04b7WmZCqC7yxWkhRZJKfyac8x_DKPOVEXE0-ropwdeEJYWeJfPOXlPNNcEa1JY3pAFfbf-/pub?gid=1321142563&single=true&output=csv";
+
   const userEmailEl = document.getElementById("userEmail");
   const filterMonth = document.getElementById("filterMonth");
   const filterYear = document.getElementById("filterYear");
@@ -115,11 +115,6 @@
   const totalIncomeEl = document.getElementById("total-income");
   const totalExpenseEl = document.getElementById("total-expense");
   const balanceEl = document.getElementById("balance");
-
-  const categoryCanvas = document.getElementById("categoryChart");
-  const trendCanvas = document.getElementById("trendChart");
-
-  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSFrDLFS04b7WmZCqC7yxWkhRZJKfyac8x_DKPOVEXE0-ropwdeEJYWeJfPOXlPNNcEa1JY3pAFfbf-/pub?gid=1321142563&single=true&output=csv";
 
   let currentUserId = null;
   let categoryChart = null;
@@ -159,40 +154,59 @@
 
   async function loadDashboard() {
     const res = await fetch(CSV_URL);
-    const rows = (await res.text()).trim().split("\n").slice(1);
+    const rows = (await res.text()).trim().split("\n");
 
     let income = 0, expense = 0;
     const cat = {}, daily = {};
     const now = new Date();
     const today = now.toISOString().split("T")[0];
 
-    rows.forEach(r => {
-      const c = r.split(",");
-      if (c[6]?.replace(/"/g, "") !== currentUserId) return;
+    for (let i = 1; i < rows.length; i++) {
+      const c = rows[i].split(",");
+      if (c.length < 10) continue;
 
-      const date = c[1];
-      const amount = +c[2];
-      const type = c[3]?.replace(/"/g, "");
-      const category = c[4]?.replace(/"/g, "");
-      const year = c[8];
-      const month = c[9];
+      const createdId = c[6]?.replace(/"/g, "").trim();
+      if (createdId !== currentUserId) continue;
+
+      const date = c[1]?.replace(/"/g, "").trim();
+
+      // ✅ FIX CHUẨN TIỀN VIỆT
+      const amount = Number(
+        c[2]
+          ?.replace(/"/g, "")
+          .replace(/\./g, "")
+          .replace(/,/g, "")
+      ) || 0;
+
+      const type = c[3]?.replace(/"/g, "").trim();
+      const category = c[4]?.replace(/"/g, "").trim();
+      const year = c[8]?.trim();
+      const month = c[9]?.trim();
 
       let pass = false;
-      if (dateFilterMode === "today") pass = date === today;
-      else if (dateFilterMode === "7days") pass = (now - new Date(date)) / 864e5 <= 7;
-      else pass = (filterMonth.value === "all" || month === filterMonth.value) && year === filterYear.value;
+      if (dateFilterMode === "today") {
+        pass = date === today;
+      } else if (dateFilterMode === "7days") {
+        const diff = (now - new Date(date)) / 864e5;
+        pass = diff >= 0 && diff <= 7;
+      } else {
+        pass =
+          (filterMonth.value === "all" || month === filterMonth.value) &&
+          year === filterYear.value;
+      }
 
-      if (!pass) return;
+      if (!pass) continue;
 
       if (type === "Thu") income += amount;
-      else {
+      if (type === "Chi") {
         expense += amount;
         cat[category] = (cat[category] || 0) + amount;
       }
 
       daily[date] ??= { thu: 0, chi: 0 };
-      type === "Thu" ? daily[date].thu += amount : daily[date].chi += amount;
-    });
+      if (type === "Thu") daily[date].thu += amount;
+      if (type === "Chi") daily[date].chi += amount;
+    }
 
     totalIncomeEl.textContent = income.toLocaleString("vi-VN");
     totalExpenseEl.textContent = expense.toLocaleString("vi-VN");
@@ -202,29 +216,40 @@
   }
 
   function renderCharts(cat, daily) {
-    categoryChart?.destroy();
-    categoryChart = new Chart(categoryCanvas.getContext("2d"), {
-      type: "doughnut",
-      data: { labels: Object.keys(cat), datasets: [{ data: Object.values(cat) }] },
-      options: { cutout: "65%" }
-    });
+    if (categoryChart) categoryChart.destroy();
+    if (trendChart) trendChart.destroy();
 
-    trendChart?.destroy();
-    const dates = Object.keys(daily).sort();
-    trendChart = new Chart(trendCanvas.getContext("2d"), {
-      type: "line",
-      data: {
-        labels: dates,
-        datasets: [
-          { label: "Thu", data: dates.map(d => daily[d].thu) },
-          { label: "Chi", data: dates.map(d => daily[d].chi) }
-        ]
+    categoryChart = new Chart(
+      document.getElementById("categoryChart"),
+      {
+        type: "doughnut",
+        data: {
+          labels: Object.keys(cat),
+          datasets: [{ data: Object.values(cat) }]
+        },
+        options: { cutout: "65%" }
       }
-    });
+    );
+
+    const dates = Object.keys(daily).sort();
+    trendChart = new Chart(
+      document.getElementById("trendChart"),
+      {
+        type: "line",
+        data: {
+          labels: dates,
+          datasets: [
+            { label: "Thu", data: dates.map(d => daily[d].thu) },
+            { label: "Chi", data: dates.map(d => daily[d].chi) }
+          ]
+        }
+      }
+    );
   }
 
   window.logout = () => import("../js/auth.js").then(m => m.logout());
 </script>
+
 <script src="../js/chatbot.js"></script>
 </body>
 </html>
