@@ -27,52 +27,53 @@
   </aside>
 
   <main class="main center-page">
-  <div class="center-wrapper">
-    <h2 class="page-title">📊 Nhập giao dịch thu – chi</h2>
-    <p class="page-desc">
-      Ghi lại các khoản chi tiêu như ăn uống, cà phê ☕ hoặc thu nhập như lương, thưởng.
-    </p>
+    <div class="center-wrapper">
+      <h2 class="page-title">📊 Nhập giao dịch thu – chi</h2>
+      <p class="page-desc">
+        Ghi lại các khoản chi tiêu như ăn uống, cà phê ☕ hoặc thu nhập như lương, thưởng.
+      </p>
 
-    <div class="card form-card">
-      <form id="transactionForm"
-        action="https://script.google.com/macros/s/AKfycbyHLR0j1jC7fyIV3isHEeipOCvtUs3tZFfGU0uPXn2GQp24orD2M7ifGm6qjbLUC06QNA/exec"
-        method="POST"
-        target="hidden_iframe">
+      <div class="card form-card">
+        <form
+          id="transactionForm"
+          action="https://script.google.com/macros/s/AKfycbyHLR0j1jC7fyIV3isHEeipOCvtUs3tZFfGU0uPXn2GQp24orD2M7ifGm6qjbLUC06QNA/exec"
+          method="POST"
+          target="hidden_iframe"
+        >
+          <input type="hidden" name="user_id" id="user_id">
 
-        <input type="hidden" name="user_id" id="user_id">
+          <label>Ngày giao dịch</label>
+          <input type="date" name="date" required>
 
-        <label>Ngày giao dịch</label>
-        <input type="date" name="date" required>
+          <label>Loại giao dịch</label>
+          <select name="type" required>
+            <option value="Thu">Thu</option>
+            <option value="Chi">Chi</option>
+          </select>
 
-        <label>Loại giao dịch</label>
-        <select name="type" required>
-          <option value="Thu">Thu</option>
-          <option value="Chi">Chi</option>
-        </select>
+          <label>Danh mục</label>
+          <select name="category_id" required>
+            <option value="Ăn uống">Ăn uống</option>
+            <option value="Nhà ở">Nhà ở</option>
+            <option value="Di chuyển">Di chuyển</option>
+            <option value="Giải trí">Giải trí</option>
+            <option value="Lương">Lương</option>
+            <option value="Thưởng">Thưởng</option>
+          </select>
 
-        <label>Danh mục</label>
-        <select name="category_id" required>
-          <option value="Ăn uống">Ăn uống</option>
-          <option value="Nhà ở">Nhà ở</option>
-          <option value="Di chuyển">Di chuyển</option>
-          <option value="Giải trí">Giải trí</option>
-          <option value="Lương">Lương</option>
-          <option value="Thưởng">Thưởng</option>
-        </select>
+          <label>Số tiền</label>
+          <input type="number" name="amount" min="0" step="1" required>
 
-        <label>Số tiền</label>
-        <input type="number" name="amount" min="0" step="1" required>
+          <label>Ghi chú</label>
+          <input type="text" name="note" placeholder="Ví dụ: Cà phê sáng ☕">
 
-        <label>Ghi chú</label>
-        <input type="text" name="note" placeholder="Ví dụ: Cà phê sáng ☕">
-
-        <button type="submit">💾 Lưu giao dịch</button>
-      </form>
+          <button type="submit">💾 Lưu giao dịch</button>
+        </form>
+      </div>
     </div>
-  </div>
 
-  <iframe name="hidden_iframe" style="display:none;"></iframe>
-</main>
+    <iframe name="hidden_iframe" style="display:none;"></iframe>
+  </main>
 </div>
 
 <script type="module">
@@ -82,17 +83,69 @@
 
   const userIdInput = document.getElementById("user_id");
   const transactionForm = document.getElementById("transactionForm");
+  const userEmailEl = document.getElementById("userEmail");
 
   onAuthStateChanged(auth, (user) => {
-    if (!user) { window.location.href = "../login.html"; return; }
-    document.getElementById("userEmail").textContent = user.email;
+    if (!user) {
+      window.location.href = "../login.html";
+      return;
+    }
+    userEmailEl.textContent = user.email;
     userIdInput.value = user.uid;
   });
 
-  transactionForm.addEventListener("submit", function () {
+  transactionForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(transactionForm);
+    const date = formData.get("date");
+    const amount = parseFloat(formData.get("amount")) || 0;
+    const type = formData.get("type");
+    const uid = userIdInput.value;
+
+    if (!date || !uid) {
+      alert("❌ Thiếu ngày giao dịch hoặc chưa đăng nhập.");
+      return;
+    }
+
+    // ===== BỔ SUNG LOGIC QUAN TRỌNG =====
+    const amount_signed = type === "Chi" ? -amount : amount;
+
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[-:T]/g, "").slice(0, 14);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, "0");
+    const transaction_id = `${timestamp}_${uid}_${random}`;
+
+    const addField = (name, value) => {
+      let input = transactionForm.querySelector(`input[name="${name}"]`);
+      if (!input) {
+        input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        transactionForm.appendChild(input);
+      }
+      input.value = value;
+    };
+
+    addField("transaction_id", transaction_id);
+    addField("amount_signed", amount_signed);
+    addField("year", year);
+    addField("month", month);
+
+    // ===== GỬI FORM =====
+    transactionForm.submit();
+
     setTimeout(() => {
       alert("✅ Đã lưu giao dịch!");
       transactionForm.reset();
+      ["transaction_id", "amount_signed", "year", "month"].forEach(name => {
+        const el = transactionForm.querySelector(`input[name="${name}"]`);
+        if (el) el.remove();
+      });
     }, 400);
   });
 
@@ -100,6 +153,7 @@
     import("../js/auth.js").then(m => m.logout());
   };
 </script>
+
 <script src="../js/chatbot.js"></script>
 </body>
 </html>
