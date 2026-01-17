@@ -29,8 +29,14 @@ window.login = function () {
   const password = document.getElementById("password").value;
 
   signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      // 👉 Sau khi đăng nhập, chuyển về màn chính index.html
+    .then((userCredential) => {
+      const user = userCredential.user;
+
+      // ✅ LƯU USER ID CHO CHATBOT + TOÀN SITE
+      localStorage.setItem("finance_user_id", user.uid);
+      localStorage.setItem("finance_user_email", user.email);
+
+      // 👉 Sau khi đăng nhập, chuyển về màn chính
       location.href = "index.html";
     })
     .catch(err => {
@@ -39,15 +45,21 @@ window.login = function () {
     });
 };
 
+
 window.logout = function () {
   signOut(auth).then(() => {
-    // Sau khi đăng xuất, quay về màn đăng nhập
+
+    // ✅ XOÁ USER KHI ĐĂNG XUẤT
+    localStorage.removeItem("finance_user_id");
+    localStorage.removeItem("finance_user_email");
+
     location.href = "login.html";
   }).catch(err => {
     console.error("Lỗi đăng xuất:", err);
     alert("Đăng xuất thất bại: " + err.message);
   });
 };
+
 
 /* HIỂN THỊ EMAIL */
 document.addEventListener("DOMContentLoaded", () => {

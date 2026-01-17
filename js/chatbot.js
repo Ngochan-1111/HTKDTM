@@ -43,8 +43,8 @@
     const input = document.getElementById('chat-input');
     const message = input.value.trim();
 
-    const userIdElement = document.getElementById('user_id');
-    const userId = userIdElement ? userIdElement.value : "guest_user";
+    // ✅ LẤY USER ID TỪ LOCALSTORAGE (DÙNG CHUNG MỌI PAGE)
+    const userId = localStorage.getItem("finance_user_id") || "guest_user";
 
     if (!message) return;
 
@@ -216,4 +216,3 @@
   `;
   document.head.appendChild(style);
 })();
-
